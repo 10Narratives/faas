@@ -1,0 +1,28 @@
+services:
+  faas-agent:
+    build:
+      context: .
+      dockerfile: docker/faas-agent.dockerfile
+    user: "0:999"
+    volumes:
+      - ./configs/faas-agent.example.yaml:/etc/faas/config.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - object-storage
+    restart: unless-stopped
+
+  object-storage:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - object-storage-data:/data
+    environment:
+      - MINIO_ROOT_USER=minio_admin
+      - MINIO_ROOT_PASSWORD=minio_admin
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+
+volumes:
+  object-storage-data:

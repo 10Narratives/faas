@@ -1,0 +1,6 @@
+object_storage:
+  endpoint: object-storage:9000
+  functions_bucket_name: functions
+  user: minio_admin
+  password: minio_admin
+  use_ssl: false
