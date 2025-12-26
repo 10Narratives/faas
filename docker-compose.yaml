@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: docker/faas-agent.dockerfile
+    container_name: faas-agent
     user: "0:999"
     volumes:
       - ./configs/faas-agent.example.yaml:/etc/faas/config.yaml:ro
@@ -10,6 +11,19 @@ services:
     depends_on:
       - object-storage
     restart: unless-stopped
+    networks:
+      - faas-net
+
+  faas-gateway:
+    build:
+      context: .
+      dockerfile: docker/faas-gateway.dockerfile
+    container_name: faas-gateway
+    volumes:
+      - ./configs/faas-agent.example.yaml:/etc/faas/config.yaml:ro
+    restart: unless-stopped
+    networks:
+      - faas-net
 
   object-storage:
     image: minio/minio:latest
@@ -23,6 +37,64 @@ services:
       - MINIO_ROOT_PASSWORD=minio_admin
     command: server /data --console-address ":9001"
     restart: unless-stopped
+    networks:
+      - faas-net
+
+  statedb:
+    image: postgres:17-alpine
+    container_name: faas-statedb
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: statedb
+    ports:
+      - "5432:5432"
+    volumes:
+      - statedb-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - faas-net
+
+  statedb-migrator:
+    image: migrate/migrate
+    container_name: faas-statedb-migrator
+    volumes:
+      - ./schema/statedb/migrations:/migrations
+    command:
+      [
+        "-path",
+        "/migrations",
+        "-database",
+        "postgres://postgres:postgres@statedb:5432/statedb?sslmode=disable",
+        "up",
+      ]
+    depends_on:
+      statedb:
+        condition: service_healthy
+    networks:
+      - faas-net
+
+  statedb-monitor:
+    image: dbeaver/cloudbeaver:latest
+    container_name: faas-statedb-monitor
+    restart: always
+    ports:
+      - "8978:8978"
+    volumes:
+      - statedb-monitor-data:/opt/cloudbeaver/workspace
+    networks:
+      - faas-net
 
 volumes:
   object-storage-data:
+  statedb-data:
+  statedb-monitor-data:
+
+networks:
+  faas-net:
+    driver: bridge

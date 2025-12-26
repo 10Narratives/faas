@@ -74,10 +74,10 @@ func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
 func (a *App) Startup(ctx context.Context) error {
 	errGroup, ctx := errgroup.WithContext(ctx)
 
-	a.log.Info("start running function")
-	result, _ := a.runtime.RunFunction(ctx, "hello.py")
-	a.log.Info("result", zap.ByteString("result", result))
-	a.log.Info("stop running function")
+	// a.log.Info("start running function")
+	// result, _ := a.runtime.RunFunction(ctx, "hello.py")
+	// a.log.Info("result", zap.ByteString("result", result))
+	// a.log.Info("stop running function")
 
 	return errGroup.Wait()
 }
