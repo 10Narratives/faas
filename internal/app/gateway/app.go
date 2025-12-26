@@ -4,6 +4,8 @@ import (
 	"context"
 
 	grpctr "github.com/10Narratives/faas/internal/transport/grpc"
+	funcapi "github.com/10Narratives/faas/internal/transport/grpc/functions"
+	opapi "github.com/10Narratives/faas/internal/transport/grpc/operations"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
@@ -17,7 +19,10 @@ type App struct {
 func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
 	grpcServer := grpctr.NewComponent(cfg.Transport.Grpc.Address,
 		grpctr.WithServerOptions(),
-		grpctr.WithServiceRegistration(),
+		grpctr.WithServiceRegistration(
+			funcapi.NewRegistration(nil),
+			opapi.NewRegistration(nil),
+		),
 	)
 
 	return &App{

@@ -6,7 +6,7 @@ import (
 	"net"
 	"net/http"
 
-	funcrepo "github.com/10Narratives/faas/internal/repository/functions"
+	funcrepo "github.com/10Narratives/faas/internal/repositories/minio/functions"
 	"github.com/10Narratives/faas/internal/services/runtime"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"

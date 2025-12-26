@@ -11,3 +11,6 @@ build: build-faas-agent
 
 start: build
 	docker compose up --build --detach
+
+generate:
+	buf generate

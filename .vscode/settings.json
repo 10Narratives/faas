@@ -1,0 +1,15 @@
+{
+  "protobuf.formatOnSave": true,
+  "protobuf.formatter.alignFields": false,
+  "protobuf.protoc.path": "/usr/bin/protoc",
+  "protobuf.protoc.options": [
+    "--proto_path=${workspaceFolder}/schema/proto",
+    "--proto_path=${workspaceFolder}/schema/proto/third_party",
+    "--go_out=${workspaceFolder}/pkg",
+    "--go_opt=paths=source_relative",
+    "--go-grpc_out=${workspaceFolder}/pkg",
+    "--go-grpc_opt=paths=source_relative"
+  ],
+  "protobuf.completion.autoImport": true,
+  "protobuf.hover.showDocumentation": true,
+}

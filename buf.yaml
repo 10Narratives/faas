@@ -1,0 +1,16 @@
+version: v2
+modules:
+  - path: schema/proto
+    excludes:
+      - schema/proto/third_party
+  - path: schema/proto/third_party
+lint:
+  use:
+    - STANDARD
+  ignore:
+    - schema/proto/third_party
+breaking:
+  use:
+    - FILE
+  ignore:
+    - schema/proto/third_party

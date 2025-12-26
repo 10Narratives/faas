@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package faas.functions.v1;
+
+option go_package = "github.com/10Narratives/faas/pkg/faas/functions/v1;functions";
+
+import "google/api/resource.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/field_behavior.proto";
+
+// A serverless function resource.
+message Function {
+  option (google.api.resource) = {
+    type: "faas.functions.v1/Function"
+    pattern: "functions/{function}"
+    singular: "function"
+    plural: "functions"
+  };
+
+  // The resource name of the function.
+  // Format: `functions/{function_id}`
+  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Creation timestamp of the function.
+  google.protobuf.Timestamp create_time = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Last update timestamp of the function.
+  google.protobuf.Timestamp update_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The path to the source code in the storage system.
+  string source_path = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // The entry point file for the function.
+  string entrypoint = 5 [(google.api.field_behavior) = REQUIRED];
+}

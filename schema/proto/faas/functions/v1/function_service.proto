@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package faas.functions.v1;
+
+option go_package = "github.com/10Narratives/faas/pkg/faas/functions/v1;functions";
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/longrunning/operations.proto";
+import "google/rpc/status.proto";
+import "google/protobuf/timestamp.proto";
+
+import "faas/functions/v1/function.proto";
+
+// Service for managing serverless functions.
+service FunctionService {
+  // Imports multiple functions from provided archives into the system.
+  rpc ImportFunctions(ImportFunctionsRequest) returns (google.longrunning.Operation) {
+    option (google.api.http) = {
+      post: "/v1/functions:import"
+      body: "*"
+    };
+    option (google.longrunning.operation_info) = {
+      response_type: "ImportFunctionsResponse"
+      metadata_type: "ImportFunctionsMetadata"
+    };
+  }
+}
+
+// Request message for importing functions from archives.
+message ImportFunctionsRequest {
+  // Required. List of archives containing functions to import.
+  repeated ArchiveFile archives = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Represents a single archive containing a function project.
+message ArchiveFile {
+  // Required. Binary content of the archive (e.g., ZIP file).
+  bytes content = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Required. Name of the archive file (e.g., "my-function.zip").
+  string filename = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Format of the archive.
+  enum Format {
+    // Unspecified format. The system will attempt to detect the format.
+    UNSPECIFIED_FORMAT = 0;
+    // ZIP archive format.
+    ZIP = 1;
+  }
+
+  // Format of the archive. Defaults to UNSPECIFIED_FORMAT.
+  Format format = 3;
+}
+
+// Response message for ImportFunctions.
+message ImportFunctionsResponse {
+  // List of successfully imported functions.
+  repeated Function functions = 1;
+
+  // Total number of functions successfully imported.
+  int32 total_size = 2;
+}
+
+// Metadata for the ImportFunctions long-running operation.
+message ImportFunctionsMetadata {
+  // The total number of functions found in the archives and subject to import.
+  int32 total_functions_number = 1;
+
+  // The number of functions successfully processed.
+  int32 processed_functions_number = 2;
+
+  // The number of functions that could not be processed.
+  int32 failed_functions_number = 3;
+
+  // Error details for specific functions that failed to import.
+  repeated google.rpc.Status errors = 4;
+}
