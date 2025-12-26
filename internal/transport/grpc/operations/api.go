@@ -14,6 +14,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+//mockery:generate: true
 type OperationService interface {
 	opdomain.OperationCanceler
 	opdomain.OperationDeleter
@@ -22,36 +23,52 @@ type OperationService interface {
 	opdomain.OperationWaiter
 }
 
-type api struct {
+type Server struct {
 	longrunningpb.UnimplementedOperationsServer
 	operationService OperationService
 }
 
+func NewServer(operationService OperationService) *Server {
+	return &Server{operationService: operationService}
+}
+
 func NewRegistration(operationService OperationService) grpctr.ServiceRegistration {
 	return func(s *grpc.Server) {
-		longrunningpb.RegisterOperationsServer(s, &api{operationService: operationService})
+		longrunningpb.RegisterOperationsServer(s, NewServer(operationService))
 	}
 }
 
-func (a *api) CancelOperation(ctx context.Context, req *longrunningpb.CancelOperationRequest) (*emptypb.Empty, error) {
-	options := &opdomain.CancelOperationOptions{Name: req.GetName()}
-	if err := a.operationService.CancelOperation(ctx, options); err != nil {
+func (s *Server) CancelOperation(ctx context.Context, req *longrunningpb.CancelOperationRequest) (*emptypb.Empty, error) {
+	opts := &opdomain.CancelOperationOptions{Name: req.GetName()}
+	if opts.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "operation name is required")
+	}
+
+	if err := s.operationService.CancelOperation(ctx, opts); err != nil {
 		return nil, errorToProto(err)
 	}
 	return &emptypb.Empty{}, nil
 }
 
-func (a *api) DeleteOperation(ctx context.Context, req *longrunningpb.DeleteOperationRequest) (*emptypb.Empty, error) {
-	options := &opdomain.DeleteOperationOptions{Name: req.GetName()}
-	if err := a.operationService.DeleteOperation(ctx, options); err != nil {
+func (s *Server) DeleteOperation(ctx context.Context, req *longrunningpb.DeleteOperationRequest) (*emptypb.Empty, error) {
+	opts := &opdomain.DeleteOperationOptions{Name: req.GetName()}
+	if opts.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "operation name is required")
+	}
+
+	if err := s.operationService.DeleteOperation(ctx, opts); err != nil {
 		return nil, errorToProto(err)
 	}
 	return &emptypb.Empty{}, nil
 }
 
-func (a *api) GetOperation(ctx context.Context, req *longrunningpb.GetOperationRequest) (*longrunningpb.Operation, error) {
-	options := &opdomain.GetOperationOptions{Name: req.GetName()}
-	operation, err := a.operationService.GetOperation(ctx, options)
+func (s *Server) GetOperation(ctx context.Context, req *longrunningpb.GetOperationRequest) (*longrunningpb.Operation, error) {
+	opts := &opdomain.GetOperationOptions{Name: req.GetName()}
+	if opts.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "operation name is required")
+	}
+
+	operation, err := s.operationService.GetOperation(ctx, opts)
 	if err != nil {
 		return nil, errorToProto(err)
 	}
@@ -59,7 +76,7 @@ func (a *api) GetOperation(ctx context.Context, req *longrunningpb.GetOperationR
 	return operationToProto(operation), nil
 }
 
-func (a *api) ListOperations(ctx context.Context, req *longrunningpb.ListOperationsRequest) (*longrunningpb.ListOperationsResponse, error) {
+func (s *Server) ListOperations(ctx context.Context, req *longrunningpb.ListOperationsRequest) (*longrunningpb.ListOperationsResponse, error) {
 	options := &opdomain.ListOperationsOptions{
 		Filter:               req.GetFilter(),
 		PageSize:             req.GetPageSize(),
@@ -67,7 +84,7 @@ func (a *api) ListOperations(ctx context.Context, req *longrunningpb.ListOperati
 		ReturnPartialSuccess: req.GetReturnPartialSuccess(),
 	}
 
-	listResult, err := a.operationService.ListOperations(ctx, options)
+	listResult, err := s.operationService.ListOperations(ctx, options)
 	if err != nil {
 		return nil, errorToProto(err)
 	}
@@ -81,13 +98,13 @@ func (a *api) ListOperations(ctx context.Context, req *longrunningpb.ListOperati
 	}, nil
 }
 
-func (a *api) WaitOperation(ctx context.Context, req *longrunningpb.WaitOperationRequest) (*longrunningpb.Operation, error) {
+func (s *Server) WaitOperation(ctx context.Context, req *longrunningpb.WaitOperationRequest) (*longrunningpb.Operation, error) {
 	options := &opdomain.WaitOperationOptions{
 		Name:    req.GetName(),
 		Timeout: req.GetTimeout().AsDuration(),
 	}
 
-	operation, err := a.operationService.WaitOperation(ctx, options)
+	operation, err := s.operationService.WaitOperation(ctx, options)
 	if err != nil {
 		return nil, errorToProto(err)
 	}

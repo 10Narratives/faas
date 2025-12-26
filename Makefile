@@ -6,11 +6,17 @@ clean:
 
 build-faas-agent:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o build/faas-agent  ./cmd/faas-agent/
+	
+build-faas-gateway:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -ws" -o build/faas-gateway ./cmd/faas-gateway
 
-build: build-faas-agent
+build: build-faas-agent build-faas-gateway
 
 start: build
 	docker compose up --build --detach
 
 generate:
 	buf generate
+
+mocks:
+	mockery
