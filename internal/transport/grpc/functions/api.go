@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"cloud.google.com/go/longrunning/autogen/longrunningpb"
+	funcdomain "github.com/10Narratives/faas/internal/domain/functions"
+	opdomain "github.com/10Narratives/faas/internal/domain/operations"
 	grpctr "github.com/10Narratives/faas/internal/transport/grpc"
 	"github.com/10Narratives/faas/pkg/faas/functions/v1"
 	"google.golang.org/grpc"
@@ -12,6 +14,7 @@ import (
 )
 
 type FunctionService interface {
+	ImportFunctions(ctx context.Context, sources *funcdomain.ArchiveSource) (*opdomain.Operation, error)
 }
 
 type api struct {

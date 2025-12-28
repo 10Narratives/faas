@@ -30,7 +30,7 @@ message Function {
 
   // The path to the source code in the storage system.
   string source_path = 3 [
-    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = OUTPUT_ONLY,
     (validate.rules).string = {min_len: 1}
   ];
 
