@@ -37,7 +37,7 @@
         "parameters": [
           {
             "name": "body",
-            "description": "Request message for importing functions from archives.",
+            "description": "Request message for importing functions.",
             "in": "body",
             "required": true,
             "schema": {
@@ -52,15 +52,6 @@
     }
   },
   "definitions": {
-    "ArchiveFileFormat": {
-      "type": "string",
-      "enum": [
-        "UNSPECIFIED_FORMAT",
-        "ZIP"
-      ],
-      "default": "UNSPECIFIED_FORMAT",
-      "description": "Format of the archive.\n\n - UNSPECIFIED_FORMAT: Unspecified format. The system will attempt to detect the format.\n - ZIP: ZIP archive format."
-    },
     "longrunningOperation": {
       "type": "object",
       "properties": {
@@ -121,45 +112,36 @@
       },
       "description": "The `Status` type defines a logical error model that is suitable for\ndifferent programming environments, including REST APIs and RPC APIs. It is\nused by [gRPC](https://github.com/grpc). Each `Status` message contains\nthree pieces of data: error code, error message, and error details.\n\nYou can find out more about this error model and how to work with it in the\n[API Design Guide](https://cloud.google.com/apis/design/errors)."
     },
-    "v1ArchiveFile": {
+    "v1ArchiveSource": {
       "type": "object",
       "properties": {
+        "functionName": {
+          "type": "string",
+          "title": "Name which will be used after import"
+        },
         "content": {
           "type": "string",
           "format": "byte",
-          "description": "Required. Binary content of the archive (e.g., ZIP file)."
-        },
-        "filename": {
-          "type": "string",
-          "description": "Required. Name of the archive file (e.g., \"my-function.zip\")."
-        },
-        "format": {
-          "$ref": "#/definitions/ArchiveFileFormat",
-          "description": "Format of the archive. Defaults to UNSPECIFIED_FORMAT."
+          "title": "Function content"
         }
       },
-      "description": "Represents a single archive containing a function project.",
       "required": [
-        "content",
-        "filename"
+        "functionName",
+        "content"
       ]
     },
     "v1ImportFunctionsRequest": {
       "type": "object",
       "properties": {
-        "archives": {
+        "archiveSources": {
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1ArchiveFile"
-          },
-          "description": "Required. List of archives containing functions to import."
+            "$ref": "#/definitions/v1ArchiveSource"
+          }
         }
       },
-      "description": "Request message for importing functions from archives.",
-      "required": [
-        "archives"
-      ]
+      "description": "Request message for importing functions."
     }
   }
 }

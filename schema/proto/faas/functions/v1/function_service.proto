@@ -27,52 +27,33 @@ service FunctionService {
   }
 }
 
-// Request message for importing functions from archives.
+// Request message for importing functions.
 message ImportFunctionsRequest {
-  // Required. List of archives containing functions to import.
-  repeated ArchiveFile archives = 1 [(google.api.field_behavior) = REQUIRED];
+  repeated ArchiveSource archive_sources = 1;
 }
 
-// Represents a single archive containing a function project.
-message ArchiveFile {
-  // Required. Binary content of the archive (e.g., ZIP file).
-  bytes content = 1 [(google.api.field_behavior) = REQUIRED];
+//
+message ArchiveSource {
+  // Name which will be used after import
+  string function_name = 1 [(google.api.field_behavior) = REQUIRED];
 
-  // Required. Name of the archive file (e.g., "my-function.zip").
-  string filename = 2 [(google.api.field_behavior) = REQUIRED];
-
-  // Format of the archive.
-  enum Format {
-    // Unspecified format. The system will attempt to detect the format.
-    UNSPECIFIED_FORMAT = 0;
-    // ZIP archive format.
-    ZIP = 1;
-  }
-
-  // Format of the archive. Defaults to UNSPECIFIED_FORMAT.
-  Format format = 3;
+  // Function content
+  bytes content = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
-// Response message for ImportFunctions.
+// Response message for functions import.
 message ImportFunctionsResponse {
-  // List of successfully imported functions.
   repeated Function functions = 1;
-
-  // Total number of functions successfully imported.
-  int32 total_size = 2;
 }
 
-// Metadata for the ImportFunctions long-running operation.
+// Metadata for the functions import long-running operation.
 message ImportFunctionsMetadata {
   // The total number of functions found in the archives and subject to import.
-  int32 total_functions_number = 1;
+  int32 total_count = 1;
 
-  // The number of functions successfully processed.
-  int32 processed_functions_number = 2;
-
-  // The number of functions that could not be processed.
-  int32 failed_functions_number = 3;
+  // Names of functions which was imported successfully.
+  repeated string succeeded_imports = 2;
 
   // Error details for specific functions that failed to import.
-  repeated google.rpc.Status errors = 4;
+  map<string, google.rpc.Status> failed_imports = 3;
 }

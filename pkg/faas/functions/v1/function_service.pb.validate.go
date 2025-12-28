@@ -57,7 +57,7 @@ func (m *ImportFunctionsRequest) validate(all bool) error {
 
 	var errors []error
 
-	for idx, item := range m.GetArchives() {
+	for idx, item := range m.GetArchiveSources() {
 		_, _ = idx, item
 
 		if all {
@@ -65,7 +65,7 @@ func (m *ImportFunctionsRequest) validate(all bool) error {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ImportFunctionsRequestValidationError{
-						field:  fmt.Sprintf("Archives[%v]", idx),
+						field:  fmt.Sprintf("ArchiveSources[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -73,7 +73,7 @@ func (m *ImportFunctionsRequest) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, ImportFunctionsRequestValidationError{
-						field:  fmt.Sprintf("Archives[%v]", idx),
+						field:  fmt.Sprintf("ArchiveSources[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -82,7 +82,7 @@ func (m *ImportFunctionsRequest) validate(all bool) error {
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ImportFunctionsRequestValidationError{
-					field:  fmt.Sprintf("Archives[%v]", idx),
+					field:  fmt.Sprintf("ArchiveSources[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -171,47 +171,46 @@ var _ interface {
 	ErrorName() string
 } = ImportFunctionsRequestValidationError{}
 
-// Validate checks the field values on ArchiveFile with the rules defined in
+// Validate checks the field values on ArchiveSource with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
-func (m *ArchiveFile) Validate() error {
+func (m *ArchiveSource) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ArchiveFile with the rules defined in
-// the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in ArchiveFileMultiError, or
+// ValidateAll checks the field values on ArchiveSource with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ArchiveSourceMultiError, or
 // nil if none found.
-func (m *ArchiveFile) ValidateAll() error {
+func (m *ArchiveSource) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ArchiveFile) validate(all bool) error {
+func (m *ArchiveSource) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
+	// no validation rules for FunctionName
+
 	// no validation rules for Content
 
-	// no validation rules for Filename
-
-	// no validation rules for Format
-
 	if len(errors) > 0 {
-		return ArchiveFileMultiError(errors)
+		return ArchiveSourceMultiError(errors)
 	}
 
 	return nil
 }
 
-// ArchiveFileMultiError is an error wrapping multiple validation errors
-// returned by ArchiveFile.ValidateAll() if the designated constraints aren't met.
-type ArchiveFileMultiError []error
+// ArchiveSourceMultiError is an error wrapping multiple validation errors
+// returned by ArchiveSource.ValidateAll() if the designated constraints
+// aren't met.
+type ArchiveSourceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ArchiveFileMultiError) Error() string {
+func (m ArchiveSourceMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -220,11 +219,11 @@ func (m ArchiveFileMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ArchiveFileMultiError) AllErrors() []error { return m }
+func (m ArchiveSourceMultiError) AllErrors() []error { return m }
 
-// ArchiveFileValidationError is the validation error returned by
-// ArchiveFile.Validate if the designated constraints aren't met.
-type ArchiveFileValidationError struct {
+// ArchiveSourceValidationError is the validation error returned by
+// ArchiveSource.Validate if the designated constraints aren't met.
+type ArchiveSourceValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -232,22 +231,22 @@ type ArchiveFileValidationError struct {
 }
 
 // Field function returns field value.
-func (e ArchiveFileValidationError) Field() string { return e.field }
+func (e ArchiveSourceValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ArchiveFileValidationError) Reason() string { return e.reason }
+func (e ArchiveSourceValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ArchiveFileValidationError) Cause() error { return e.cause }
+func (e ArchiveSourceValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ArchiveFileValidationError) Key() bool { return e.key }
+func (e ArchiveSourceValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ArchiveFileValidationError) ErrorName() string { return "ArchiveFileValidationError" }
+func (e ArchiveSourceValidationError) ErrorName() string { return "ArchiveSourceValidationError" }
 
 // Error satisfies the builtin error interface
-func (e ArchiveFileValidationError) Error() string {
+func (e ArchiveSourceValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -259,14 +258,14 @@ func (e ArchiveFileValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sArchiveFile.%s: %s%s",
+		"invalid %sArchiveSource.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ArchiveFileValidationError{}
+var _ error = ArchiveSourceValidationError{}
 
 var _ interface {
 	Field() string
@@ -274,7 +273,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ArchiveFileValidationError{}
+} = ArchiveSourceValidationError{}
 
 // Validate checks the field values on ImportFunctionsResponse with the rules
 // defined in the proto definition for this message. If any rules are
@@ -331,8 +330,6 @@ func (m *ImportFunctionsResponse) validate(all bool) error {
 		}
 
 	}
-
-	// no validation rules for TotalSize
 
 	if len(errors) > 0 {
 		return ImportFunctionsResponseMultiError(errors)
@@ -436,44 +433,52 @@ func (m *ImportFunctionsMetadata) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for TotalFunctionsNumber
+	// no validation rules for TotalCount
 
-	// no validation rules for ProcessedFunctionsNumber
-
-	// no validation rules for FailedFunctionsNumber
-
-	for idx, item := range m.GetErrors() {
-		_, _ = idx, item
-
-		if all {
-			switch v := interface{}(item).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, ImportFunctionsMetadataValidationError{
-						field:  fmt.Sprintf("Errors[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, ImportFunctionsMetadataValidationError{
-						field:  fmt.Sprintf("Errors[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return ImportFunctionsMetadataValidationError{
-					field:  fmt.Sprintf("Errors[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
+	{
+		sorted_keys := make([]string, len(m.GetFailedImports()))
+		i := 0
+		for key := range m.GetFailedImports() {
+			sorted_keys[i] = key
+			i++
 		}
+		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
+		for _, key := range sorted_keys {
+			val := m.GetFailedImports()[key]
+			_ = val
 
+			// no validation rules for FailedImports[key]
+
+			if all {
+				switch v := interface{}(val).(type) {
+				case interface{ ValidateAll() error }:
+					if err := v.ValidateAll(); err != nil {
+						errors = append(errors, ImportFunctionsMetadataValidationError{
+							field:  fmt.Sprintf("FailedImports[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				case interface{ Validate() error }:
+					if err := v.Validate(); err != nil {
+						errors = append(errors, ImportFunctionsMetadataValidationError{
+							field:  fmt.Sprintf("FailedImports[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				}
+			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+				if err := v.Validate(); err != nil {
+					return ImportFunctionsMetadataValidationError{
+						field:  fmt.Sprintf("FailedImports[%v]", key),
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		}
 	}
 
 	if len(errors) > 0 {

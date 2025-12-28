@@ -59,67 +59,38 @@ func (m *Function) validate(all bool) error {
 
 	// no validation rules for Name
 
-	if all {
-		switch v := interface{}(m.GetCreateTime()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, FunctionValidationError{
-					field:  "CreateTime",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, FunctionValidationError{
-					field:  "CreateTime",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
+	if utf8.RuneCountInString(m.GetParametersSchema()) < 1 {
+		err := FunctionValidationError{
+			field:  "ParametersSchema",
+			reason: "value length must be at least 1 runes",
 		}
-	} else if v, ok := interface{}(m.GetCreateTime()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return FunctionValidationError{
-				field:  "CreateTime",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
+		if !all {
+			return err
 		}
+		errors = append(errors, err)
 	}
 
-	if all {
-		switch v := interface{}(m.GetUpdateTime()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, FunctionValidationError{
-					field:  "UpdateTime",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, FunctionValidationError{
-					field:  "UpdateTime",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
+	if utf8.RuneCountInString(m.GetSourcePath()) < 1 {
+		err := FunctionValidationError{
+			field:  "SourcePath",
+			reason: "value length must be at least 1 runes",
 		}
-	} else if v, ok := interface{}(m.GetUpdateTime()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return FunctionValidationError{
-				field:  "UpdateTime",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
+		if !all {
+			return err
 		}
+		errors = append(errors, err)
 	}
 
-	// no validation rules for SourcePath
-
-	// no validation rules for Entrypoint
+	if utf8.RuneCountInString(m.GetEntrypoint()) < 1 {
+		err := FunctionValidationError{
+			field:  "Entrypoint",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return FunctionMultiError(errors)

@@ -7,10 +7,11 @@
 package functions
 
 import (
+	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -28,15 +29,12 @@ type Function struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The resource name of the function.
 	// Format: `functions/{function_id}`
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Creation timestamp of the function.
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
-	// Last update timestamp of the function.
-	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	Name             string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	ParametersSchema string `protobuf:"bytes,2,opt,name=parameters_schema,json=parametersSchema,proto3" json:"parameters_schema,omitempty"`
 	// The path to the source code in the storage system.
-	SourcePath string `protobuf:"bytes,4,opt,name=source_path,json=sourcePath,proto3" json:"source_path,omitempty"`
+	SourcePath string `protobuf:"bytes,3,opt,name=source_path,json=sourcePath,proto3" json:"source_path,omitempty"`
 	// The entry point file for the function.
-	Entrypoint    string `protobuf:"bytes,5,opt,name=entrypoint,proto3" json:"entrypoint,omitempty"`
+	Entrypoint    string `protobuf:"bytes,4,opt,name=entrypoint,proto3" json:"entrypoint,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -78,18 +76,11 @@ func (x *Function) GetName() string {
 	return ""
 }
 
-func (x *Function) GetCreateTime() *timestamppb.Timestamp {
+func (x *Function) GetParametersSchema() string {
 	if x != nil {
-		return x.CreateTime
+		return x.ParametersSchema
 	}
-	return nil
-}
-
-func (x *Function) GetUpdateTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdateTime
-	}
-	return nil
+	return ""
 }
 
 func (x *Function) GetSourcePath() string {
@@ -110,17 +101,17 @@ var File_faas_functions_v1_function_proto protoreflect.FileDescriptor
 
 const file_faas_functions_v1_function_proto_rawDesc = "" +
 	"\n" +
-	" faas/functions/v1/function.proto\x12\x11faas.functions.v1\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xbe\x02\n" +
+	" faas/functions/v1/function.proto\x12\x11faas.functions.v1\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x17validate/validate.proto\"\x81\x02\n" +
 	"\bFunction\x12\x17\n" +
-	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x12@\n" +
-	"\vcreate_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
-	"createTime\x12@\n" +
-	"\vupdate_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
-	"updateTime\x12$\n" +
-	"\vsource_path\x18\x04 \x01(\tB\x03\xe0A\x02R\n" +
-	"sourcePath\x12#\n" +
+	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x127\n" +
+	"\x11parameters_schema\x18\x02 \x01(\tB\n" +
+	"\xe0A\x02\xfaB\x04r\x02\x10\x01R\x10parametersSchema\x12+\n" +
+	"\vsource_path\x18\x03 \x01(\tB\n" +
+	"\xe0A\x02\xfaB\x04r\x02\x10\x01R\n" +
+	"sourcePath\x12*\n" +
 	"\n" +
-	"entrypoint\x18\x05 \x01(\tB\x03\xe0A\x02R\n" +
+	"entrypoint\x18\x04 \x01(\tB\n" +
+	"\xe0A\x02\xfaB\x04r\x02\x10\x01R\n" +
 	"entrypoint:J\xeaAG\n" +
 	"\x1afaas.functions.v1/Function\x12\x14functions/{function}*\tfunctions2\bfunctionB>Z<github.com/10Narratives/faas/pkg/faas/functions/v1;functionsb\x06proto3"
 
@@ -138,17 +129,14 @@ func file_faas_functions_v1_function_proto_rawDescGZIP() []byte {
 
 var file_faas_functions_v1_function_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_faas_functions_v1_function_proto_goTypes = []any{
-	(*Function)(nil),              // 0: faas.functions.v1.Function
-	(*timestamppb.Timestamp)(nil), // 1: google.protobuf.Timestamp
+	(*Function)(nil), // 0: faas.functions.v1.Function
 }
 var file_faas_functions_v1_function_proto_depIdxs = []int32{
-	1, // 0: faas.functions.v1.Function.create_time:type_name -> google.protobuf.Timestamp
-	1, // 1: faas.functions.v1.Function.update_time:type_name -> google.protobuf.Timestamp
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	0, // [0:0] is the sub-list for method output_type
+	0, // [0:0] is the sub-list for method input_type
+	0, // [0:0] is the sub-list for extension type_name
+	0, // [0:0] is the sub-list for extension extendee
+	0, // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_faas_functions_v1_function_proto_init() }

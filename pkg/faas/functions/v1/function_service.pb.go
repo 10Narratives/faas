@@ -25,62 +25,12 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Format of the archive.
-type ArchiveFile_Format int32
-
-const (
-	// Unspecified format. The system will attempt to detect the format.
-	ArchiveFile_UNSPECIFIED_FORMAT ArchiveFile_Format = 0
-	// ZIP archive format.
-	ArchiveFile_ZIP ArchiveFile_Format = 1
-)
-
-// Enum value maps for ArchiveFile_Format.
-var (
-	ArchiveFile_Format_name = map[int32]string{
-		0: "UNSPECIFIED_FORMAT",
-		1: "ZIP",
-	}
-	ArchiveFile_Format_value = map[string]int32{
-		"UNSPECIFIED_FORMAT": 0,
-		"ZIP":                1,
-	}
-)
-
-func (x ArchiveFile_Format) Enum() *ArchiveFile_Format {
-	p := new(ArchiveFile_Format)
-	*p = x
-	return p
-}
-
-func (x ArchiveFile_Format) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (ArchiveFile_Format) Descriptor() protoreflect.EnumDescriptor {
-	return file_faas_functions_v1_function_service_proto_enumTypes[0].Descriptor()
-}
-
-func (ArchiveFile_Format) Type() protoreflect.EnumType {
-	return &file_faas_functions_v1_function_service_proto_enumTypes[0]
-}
-
-func (x ArchiveFile_Format) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use ArchiveFile_Format.Descriptor instead.
-func (ArchiveFile_Format) EnumDescriptor() ([]byte, []int) {
-	return file_faas_functions_v1_function_service_proto_rawDescGZIP(), []int{1, 0}
-}
-
-// Request message for importing functions from archives.
+// Request message for importing functions.
 type ImportFunctionsRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. List of archives containing functions to import.
-	Archives      []*ArchiveFile `protobuf:"bytes,1,rep,name=archives,proto3" json:"archives,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ArchiveSources []*ArchiveSource       `protobuf:"bytes,1,rep,name=archive_sources,json=archiveSources,proto3" json:"archive_sources,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ImportFunctionsRequest) Reset() {
@@ -113,40 +63,37 @@ func (*ImportFunctionsRequest) Descriptor() ([]byte, []int) {
 	return file_faas_functions_v1_function_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ImportFunctionsRequest) GetArchives() []*ArchiveFile {
+func (x *ImportFunctionsRequest) GetArchiveSources() []*ArchiveSource {
 	if x != nil {
-		return x.Archives
+		return x.ArchiveSources
 	}
 	return nil
 }
 
-// Represents a single archive containing a function project.
-type ArchiveFile struct {
+type ArchiveSource struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. Binary content of the archive (e.g., ZIP file).
-	Content []byte `protobuf:"bytes,1,opt,name=content,proto3" json:"content,omitempty"`
-	// Required. Name of the archive file (e.g., "my-function.zip").
-	Filename string `protobuf:"bytes,2,opt,name=filename,proto3" json:"filename,omitempty"`
-	// Format of the archive. Defaults to UNSPECIFIED_FORMAT.
-	Format        ArchiveFile_Format `protobuf:"varint,3,opt,name=format,proto3,enum=faas.functions.v1.ArchiveFile_Format" json:"format,omitempty"`
+	// Name which will be used after import
+	FunctionName string `protobuf:"bytes,1,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"`
+	// Function content
+	Content       []byte `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ArchiveFile) Reset() {
-	*x = ArchiveFile{}
+func (x *ArchiveSource) Reset() {
+	*x = ArchiveSource{}
 	mi := &file_faas_functions_v1_function_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ArchiveFile) String() string {
+func (x *ArchiveSource) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ArchiveFile) ProtoMessage() {}
+func (*ArchiveSource) ProtoMessage() {}
 
-func (x *ArchiveFile) ProtoReflect() protoreflect.Message {
+func (x *ArchiveSource) ProtoReflect() protoreflect.Message {
 	mi := &file_faas_functions_v1_function_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -158,39 +105,29 @@ func (x *ArchiveFile) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ArchiveFile.ProtoReflect.Descriptor instead.
-func (*ArchiveFile) Descriptor() ([]byte, []int) {
+// Deprecated: Use ArchiveSource.ProtoReflect.Descriptor instead.
+func (*ArchiveSource) Descriptor() ([]byte, []int) {
 	return file_faas_functions_v1_function_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ArchiveFile) GetContent() []byte {
+func (x *ArchiveSource) GetFunctionName() string {
+	if x != nil {
+		return x.FunctionName
+	}
+	return ""
+}
+
+func (x *ArchiveSource) GetContent() []byte {
 	if x != nil {
 		return x.Content
 	}
 	return nil
 }
 
-func (x *ArchiveFile) GetFilename() string {
-	if x != nil {
-		return x.Filename
-	}
-	return ""
-}
-
-func (x *ArchiveFile) GetFormat() ArchiveFile_Format {
-	if x != nil {
-		return x.Format
-	}
-	return ArchiveFile_UNSPECIFIED_FORMAT
-}
-
-// Response message for ImportFunctions.
+// Response message for functions import.
 type ImportFunctionsResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// List of successfully imported functions.
-	Functions []*Function `protobuf:"bytes,1,rep,name=functions,proto3" json:"functions,omitempty"`
-	// Total number of functions successfully imported.
-	TotalSize     int32 `protobuf:"varint,2,opt,name=total_size,json=totalSize,proto3" json:"total_size,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Functions     []*Function            `protobuf:"bytes,1,rep,name=functions,proto3" json:"functions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -232,24 +169,15 @@ func (x *ImportFunctionsResponse) GetFunctions() []*Function {
 	return nil
 }
 
-func (x *ImportFunctionsResponse) GetTotalSize() int32 {
-	if x != nil {
-		return x.TotalSize
-	}
-	return 0
-}
-
-// Metadata for the ImportFunctions long-running operation.
+// Metadata for the functions import long-running operation.
 type ImportFunctionsMetadata struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The total number of functions found in the archives and subject to import.
-	TotalFunctionsNumber int32 `protobuf:"varint,1,opt,name=total_functions_number,json=totalFunctionsNumber,proto3" json:"total_functions_number,omitempty"`
-	// The number of functions successfully processed.
-	ProcessedFunctionsNumber int32 `protobuf:"varint,2,opt,name=processed_functions_number,json=processedFunctionsNumber,proto3" json:"processed_functions_number,omitempty"`
-	// The number of functions that could not be processed.
-	FailedFunctionsNumber int32 `protobuf:"varint,3,opt,name=failed_functions_number,json=failedFunctionsNumber,proto3" json:"failed_functions_number,omitempty"`
+	TotalCount int32 `protobuf:"varint,1,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`
+	// Names of functions which was imported successfully.
+	SucceededImports []string `protobuf:"bytes,2,rep,name=succeeded_imports,json=succeededImports,proto3" json:"succeeded_imports,omitempty"`
 	// Error details for specific functions that failed to import.
-	Errors        []*status.Status `protobuf:"bytes,4,rep,name=errors,proto3" json:"errors,omitempty"`
+	FailedImports map[string]*status.Status `protobuf:"bytes,3,rep,name=failed_imports,json=failedImports,proto3" json:"failed_imports,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -284,30 +212,23 @@ func (*ImportFunctionsMetadata) Descriptor() ([]byte, []int) {
 	return file_faas_functions_v1_function_service_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ImportFunctionsMetadata) GetTotalFunctionsNumber() int32 {
+func (x *ImportFunctionsMetadata) GetTotalCount() int32 {
 	if x != nil {
-		return x.TotalFunctionsNumber
+		return x.TotalCount
 	}
 	return 0
 }
 
-func (x *ImportFunctionsMetadata) GetProcessedFunctionsNumber() int32 {
+func (x *ImportFunctionsMetadata) GetSucceededImports() []string {
 	if x != nil {
-		return x.ProcessedFunctionsNumber
+		return x.SucceededImports
 	}
-	return 0
+	return nil
 }
 
-func (x *ImportFunctionsMetadata) GetFailedFunctionsNumber() int32 {
+func (x *ImportFunctionsMetadata) GetFailedImports() map[string]*status.Status {
 	if x != nil {
-		return x.FailedFunctionsNumber
-	}
-	return 0
-}
-
-func (x *ImportFunctionsMetadata) GetErrors() []*status.Status {
-	if x != nil {
-		return x.Errors
+		return x.FailedImports
 	}
 	return nil
 }
@@ -316,25 +237,22 @@ var File_faas_functions_v1_function_service_proto protoreflect.FileDescriptor
 
 const file_faas_functions_v1_function_service_proto_rawDesc = "" +
 	"\n" +
-	"(faas/functions/v1/function_service.proto\x12\x11faas.functions.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a#google/longrunning/operations.proto\x1a\x17google/rpc/status.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a faas/functions/v1/function.proto\"Y\n" +
-	"\x16ImportFunctionsRequest\x12?\n" +
-	"\barchives\x18\x01 \x03(\v2\x1e.faas.functions.v1.ArchiveFileB\x03\xe0A\x02R\barchives\"\xb7\x01\n" +
-	"\vArchiveFile\x12\x1d\n" +
-	"\acontent\x18\x01 \x01(\fB\x03\xe0A\x02R\acontent\x12\x1f\n" +
-	"\bfilename\x18\x02 \x01(\tB\x03\xe0A\x02R\bfilename\x12=\n" +
-	"\x06format\x18\x03 \x01(\x0e2%.faas.functions.v1.ArchiveFile.FormatR\x06format\")\n" +
-	"\x06Format\x12\x16\n" +
-	"\x12UNSPECIFIED_FORMAT\x10\x00\x12\a\n" +
-	"\x03ZIP\x10\x01\"s\n" +
+	"(faas/functions/v1/function_service.proto\x12\x11faas.functions.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a#google/longrunning/operations.proto\x1a\x17google/rpc/status.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a faas/functions/v1/function.proto\"c\n" +
+	"\x16ImportFunctionsRequest\x12I\n" +
+	"\x0farchive_sources\x18\x01 \x03(\v2 .faas.functions.v1.ArchiveSourceR\x0earchiveSources\"X\n" +
+	"\rArchiveSource\x12(\n" +
+	"\rfunction_name\x18\x01 \x01(\tB\x03\xe0A\x02R\ffunctionName\x12\x1d\n" +
+	"\acontent\x18\x02 \x01(\fB\x03\xe0A\x02R\acontent\"T\n" +
 	"\x17ImportFunctionsResponse\x129\n" +
-	"\tfunctions\x18\x01 \x03(\v2\x1b.faas.functions.v1.FunctionR\tfunctions\x12\x1d\n" +
-	"\n" +
-	"total_size\x18\x02 \x01(\x05R\ttotalSize\"\xf1\x01\n" +
-	"\x17ImportFunctionsMetadata\x124\n" +
-	"\x16total_functions_number\x18\x01 \x01(\x05R\x14totalFunctionsNumber\x12<\n" +
-	"\x1aprocessed_functions_number\x18\x02 \x01(\x05R\x18processedFunctionsNumber\x126\n" +
-	"\x17failed_functions_number\x18\x03 \x01(\x05R\x15failedFunctionsNumber\x12*\n" +
-	"\x06errors\x18\x04 \x03(\v2\x12.google.rpc.StatusR\x06errors2\xc5\x01\n" +
+	"\tfunctions\x18\x01 \x03(\v2\x1b.faas.functions.v1.FunctionR\tfunctions\"\xa3\x02\n" +
+	"\x17ImportFunctionsMetadata\x12\x1f\n" +
+	"\vtotal_count\x18\x01 \x01(\x05R\n" +
+	"totalCount\x12+\n" +
+	"\x11succeeded_imports\x18\x02 \x03(\tR\x10succeededImports\x12d\n" +
+	"\x0efailed_imports\x18\x03 \x03(\v2=.faas.functions.v1.ImportFunctionsMetadata.FailedImportsEntryR\rfailedImports\x1aT\n" +
+	"\x12FailedImportsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12(\n" +
+	"\x05value\x18\x02 \x01(\v2\x12.google.rpc.StatusR\x05value:\x028\x012\xc5\x01\n" +
 	"\x0fFunctionService\x12\xb1\x01\n" +
 	"\x0fImportFunctions\x12).faas.functions.v1.ImportFunctionsRequest\x1a\x1d.google.longrunning.Operation\"T\xcaA2\n" +
 	"\x17ImportFunctionsResponse\x12\x17ImportFunctionsMetadata\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/v1/functions:importB>Z<github.com/10Narratives/faas/pkg/faas/functions/v1;functionsb\x06proto3"
@@ -351,24 +269,23 @@ func file_faas_functions_v1_function_service_proto_rawDescGZIP() []byte {
 	return file_faas_functions_v1_function_service_proto_rawDescData
 }
 
-var file_faas_functions_v1_function_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_faas_functions_v1_function_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_faas_functions_v1_function_service_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_faas_functions_v1_function_service_proto_goTypes = []any{
-	(ArchiveFile_Format)(0),         // 0: faas.functions.v1.ArchiveFile.Format
-	(*ImportFunctionsRequest)(nil),  // 1: faas.functions.v1.ImportFunctionsRequest
-	(*ArchiveFile)(nil),             // 2: faas.functions.v1.ArchiveFile
-	(*ImportFunctionsResponse)(nil), // 3: faas.functions.v1.ImportFunctionsResponse
-	(*ImportFunctionsMetadata)(nil), // 4: faas.functions.v1.ImportFunctionsMetadata
+	(*ImportFunctionsRequest)(nil),  // 0: faas.functions.v1.ImportFunctionsRequest
+	(*ArchiveSource)(nil),           // 1: faas.functions.v1.ArchiveSource
+	(*ImportFunctionsResponse)(nil), // 2: faas.functions.v1.ImportFunctionsResponse
+	(*ImportFunctionsMetadata)(nil), // 3: faas.functions.v1.ImportFunctionsMetadata
+	nil,                             // 4: faas.functions.v1.ImportFunctionsMetadata.FailedImportsEntry
 	(*Function)(nil),                // 5: faas.functions.v1.Function
 	(*status.Status)(nil),           // 6: google.rpc.Status
 	(*longrunningpb.Operation)(nil), // 7: google.longrunning.Operation
 }
 var file_faas_functions_v1_function_service_proto_depIdxs = []int32{
-	2, // 0: faas.functions.v1.ImportFunctionsRequest.archives:type_name -> faas.functions.v1.ArchiveFile
-	0, // 1: faas.functions.v1.ArchiveFile.format:type_name -> faas.functions.v1.ArchiveFile.Format
-	5, // 2: faas.functions.v1.ImportFunctionsResponse.functions:type_name -> faas.functions.v1.Function
-	6, // 3: faas.functions.v1.ImportFunctionsMetadata.errors:type_name -> google.rpc.Status
-	1, // 4: faas.functions.v1.FunctionService.ImportFunctions:input_type -> faas.functions.v1.ImportFunctionsRequest
+	1, // 0: faas.functions.v1.ImportFunctionsRequest.archive_sources:type_name -> faas.functions.v1.ArchiveSource
+	5, // 1: faas.functions.v1.ImportFunctionsResponse.functions:type_name -> faas.functions.v1.Function
+	4, // 2: faas.functions.v1.ImportFunctionsMetadata.failed_imports:type_name -> faas.functions.v1.ImportFunctionsMetadata.FailedImportsEntry
+	6, // 3: faas.functions.v1.ImportFunctionsMetadata.FailedImportsEntry.value:type_name -> google.rpc.Status
+	0, // 4: faas.functions.v1.FunctionService.ImportFunctions:input_type -> faas.functions.v1.ImportFunctionsRequest
 	7, // 5: faas.functions.v1.FunctionService.ImportFunctions:output_type -> google.longrunning.Operation
 	5, // [5:6] is the sub-list for method output_type
 	4, // [4:5] is the sub-list for method input_type
@@ -388,14 +305,13 @@ func file_faas_functions_v1_function_service_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_faas_functions_v1_function_service_proto_rawDesc), len(file_faas_functions_v1_function_service_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   4,
+			NumEnums:      0,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_faas_functions_v1_function_service_proto_goTypes,
 		DependencyIndexes: file_faas_functions_v1_function_service_proto_depIdxs,
-		EnumInfos:         file_faas_functions_v1_function_service_proto_enumTypes,
 		MessageInfos:      file_faas_functions_v1_function_service_proto_msgTypes,
 	}.Build()
 	File_faas_functions_v1_function_service_proto = out.File

@@ -8,6 +8,8 @@ import "google/api/resource.proto";
 import "google/protobuf/timestamp.proto";
 import "google/api/field_behavior.proto";
 
+import "validate/validate.proto";
+
 // A serverless function resource.
 message Function {
   option (google.api.resource) = {
@@ -21,15 +23,20 @@ message Function {
   // Format: `functions/{function_id}`
   string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Creation timestamp of the function.
-  google.protobuf.Timestamp create_time = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Last update timestamp of the function.
-  google.protobuf.Timestamp update_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string parameters_schema = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (validate.rules).string = {min_len: 1}
+  ];
 
   // The path to the source code in the storage system.
-  string source_path = 4 [(google.api.field_behavior) = REQUIRED];
+  string source_path = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (validate.rules).string = {min_len: 1}
+  ];
 
   // The entry point file for the function.
-  string entrypoint = 5 [(google.api.field_behavior) = REQUIRED];
+  string entrypoint = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (validate.rules).string = {min_len: 1}
+  ];
 }
