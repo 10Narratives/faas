@@ -4,7 +4,6 @@ import (
 	"context"
 
 	grpctr "github.com/10Narratives/faas/internal/transport/grpc"
-	funcapi "github.com/10Narratives/faas/internal/transport/grpc/functions"
 	healthapi "github.com/10Narratives/faas/internal/transport/grpc/health"
 	"github.com/10Narratives/faas/internal/transport/grpc/interceptors/logging"
 	"github.com/10Narratives/faas/internal/transport/grpc/interceptors/recovery"
@@ -33,7 +32,6 @@ func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
 		grpctr.WithServiceRegistration(
 			healthapi.NewRegistration(),
 			reflectapi.NewRegistration(),
-			funcapi.NewRegistration(nil),
 		),
 	)
 

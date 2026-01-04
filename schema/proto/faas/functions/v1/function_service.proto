@@ -2,58 +2,31 @@ syntax = "proto3";
 
 package faas.functions.v1;
 
-option go_package = "github.com/10Narratives/faas/pkg/faas/functions/v1;functions";
+option go_package = "github.com/10Narratives/faas/pkg/faas/functions/v1;functionspb";
 
-import "google/api/annotations.proto";
-import "google/api/field_behavior.proto";
-import "google/longrunning/operations.proto";
-import "google/rpc/status.proto";
-import "google/protobuf/timestamp.proto";
+// import "google/api/annotations.proto";
+// import "google/api/field_behavior.proto";
+// import "google/longrunning/operations.proto";
+// import "google/rpc/status.proto";
+// import "google/protobuf/timestamp.proto";
 
 import "faas/functions/v1/function.proto";
 
 // Service for managing serverless functions.
 service FunctionService {
-  // Imports multiple functions from provided archives into the system.
-  rpc ImportFunctions(ImportFunctionsRequest) returns (google.longrunning.Operation) {
-    option (google.api.http) = {
-      post: "/v1/functions:import"
-      body: "*"
-    };
-    option (google.longrunning.operation_info) = {
-      response_type: "ImportFunctionsResponse"
-      metadata_type: "ImportFunctionsMetadata"
-    };
-  }
-}
-
-// Request message for importing functions.
-message ImportFunctionsRequest {
-  repeated ArchiveSource archive_sources = 1;
+  //
+  rpc UploadFunction(stream UploadFunctionRequest) returns (UploadFunctionResponse);
 }
 
 //
-message ArchiveSource {
-  // Name which will be used after import
-  string function_name = 1 [(google.api.field_behavior) = REQUIRED];
-
-  // Function content
-  bytes content = 2 [(google.api.field_behavior) = REQUIRED];
+message UploadFunctionRequest {
+  oneof data {
+    Function function = 1;
+    bytes chunk = 2;
+  }
 }
 
-// Response message for functions import.
-message ImportFunctionsResponse {
-  repeated Function functions = 1;
-}
-
-// Metadata for the functions import long-running operation.
-message ImportFunctionsMetadata {
-  // The total number of functions found in the archives and subject to import.
-  int32 total_count = 1;
-
-  // Names of functions which was imported successfully.
-  repeated string succeeded_imports = 2;
-
-  // Error details for specific functions that failed to import.
-  map<string, google.rpc.Status> failed_imports = 3;
+//
+message UploadFunctionResponse {
+  Function function = 1;
 }

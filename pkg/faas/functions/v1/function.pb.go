@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: faas/functions/v1/function.proto
 
-package functions
+package functionspb
 
 import (
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
@@ -31,10 +31,10 @@ type Function struct {
 	// Format: `functions/{function_id}`
 	Name             string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	ParametersSchema string `protobuf:"bytes,2,opt,name=parameters_schema,json=parametersSchema,proto3" json:"parameters_schema,omitempty"`
-	// The path to the source code in the storage system.
-	SourcePath string `protobuf:"bytes,3,opt,name=source_path,json=sourcePath,proto3" json:"source_path,omitempty"`
 	// The entry point file for the function.
-	Entrypoint    string `protobuf:"bytes,4,opt,name=entrypoint,proto3" json:"entrypoint,omitempty"`
+	Entrypoint string `protobuf:"bytes,3,opt,name=entrypoint,proto3" json:"entrypoint,omitempty"`
+	// The path to the source code in the storage system.
+	SourcePath    string `protobuf:"bytes,4,opt,name=source_path,json=sourcePath,proto3" json:"source_path,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -83,16 +83,16 @@ func (x *Function) GetParametersSchema() string {
 	return ""
 }
 
-func (x *Function) GetSourcePath() string {
+func (x *Function) GetEntrypoint() string {
 	if x != nil {
-		return x.SourcePath
+		return x.Entrypoint
 	}
 	return ""
 }
 
-func (x *Function) GetEntrypoint() string {
+func (x *Function) GetSourcePath() string {
 	if x != nil {
-		return x.Entrypoint
+		return x.SourcePath
 	}
 	return ""
 }
@@ -103,17 +103,17 @@ const file_faas_functions_v1_function_proto_rawDesc = "" +
 	"\n" +
 	" faas/functions/v1/function.proto\x12\x11faas.functions.v1\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x17validate/validate.proto\"\x81\x02\n" +
 	"\bFunction\x12\x17\n" +
-	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x03R\x04name\x127\n" +
+	"\x04name\x18\x01 \x01(\tB\x03\xe0A\bR\x04name\x127\n" +
 	"\x11parameters_schema\x18\x02 \x01(\tB\n" +
-	"\xe0A\x02\xfaB\x04r\x02\x10\x01R\x10parametersSchema\x12+\n" +
-	"\vsource_path\x18\x03 \x01(\tB\n" +
-	"\xe0A\x02\xfaB\x04r\x02\x10\x01R\n" +
-	"sourcePath\x12*\n" +
+	"\xe0A\x02\xfaB\x04r\x02\x10\x01R\x10parametersSchema\x12*\n" +
 	"\n" +
-	"entrypoint\x18\x04 \x01(\tB\n" +
+	"entrypoint\x18\x03 \x01(\tB\n" +
 	"\xe0A\x02\xfaB\x04r\x02\x10\x01R\n" +
-	"entrypoint:J\xeaAG\n" +
-	"\x1afaas.functions.v1/Function\x12\x14functions/{function}*\tfunctions2\bfunctionB>Z<github.com/10Narratives/faas/pkg/faas/functions/v1;functionsb\x06proto3"
+	"entrypoint\x12+\n" +
+	"\vsource_path\x18\x04 \x01(\tB\n" +
+	"\xe0A\x03\xfaB\x04r\x02\x10\x01R\n" +
+	"sourcePath:J\xeaAG\n" +
+	"\x1afaas.functions.v1/Function\x12\x14functions/{function}*\tfunctions2\bfunctionB@Z>github.com/10Narratives/faas/pkg/faas/functions/v1;functionspbb\x06proto3"
 
 var (
 	file_faas_functions_v1_function_proto_rawDescOnce sync.Once

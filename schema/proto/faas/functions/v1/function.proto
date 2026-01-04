@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package faas.functions.v1;
 
-option go_package = "github.com/10Narratives/faas/pkg/faas/functions/v1;functions";
+option go_package = "github.com/10Narratives/faas/pkg/faas/functions/v1;functionspb";
 
 import "google/api/resource.proto";
 import "google/protobuf/timestamp.proto";
@@ -21,22 +21,22 @@ message Function {
 
   // The resource name of the function.
   // Format: `functions/{function_id}`
-  string name = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
 
   string parameters_schema = 2 [
     (google.api.field_behavior) = REQUIRED,
     (validate.rules).string = {min_len: 1}
   ];
 
-  // The path to the source code in the storage system.
-  string source_path = 3 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
+  // The entry point file for the function.
+  string entrypoint = 3 [
+    (google.api.field_behavior) = REQUIRED,
     (validate.rules).string = {min_len: 1}
   ];
 
-  // The entry point file for the function.
-  string entrypoint = 4 [
-    (google.api.field_behavior) = REQUIRED,
+  // The path to the source code in the storage system.
+  string source_path = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
     (validate.rules).string = {min_len: 1}
   ];
 }
