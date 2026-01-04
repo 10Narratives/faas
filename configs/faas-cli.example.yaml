@@ -1,3 +1,0 @@
-transport:
-  gateway:
-    address: grpc://localhost:55055

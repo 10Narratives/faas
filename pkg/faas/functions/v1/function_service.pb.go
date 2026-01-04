@@ -21,50 +21,50 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type SourceBundleMetadata_BundleType int32
+type SourceBundleType int32
 
 const (
-	SourceBundleMetadata_BUNDLE_TYPE_UNSPECIFIED SourceBundleMetadata_BundleType = 0
-	SourceBundleMetadata_BUNDLE_TYPE_ZIP         SourceBundleMetadata_BundleType = 1
+	SourceBundleType_SOURCE_BUNDLE_TYPE_UNSPECIFIED SourceBundleType = 0
+	SourceBundleType_SOURCE_BUNDLE_TYPE_ZIP         SourceBundleType = 1
 )
 
-// Enum value maps for SourceBundleMetadata_BundleType.
+// Enum value maps for SourceBundleType.
 var (
-	SourceBundleMetadata_BundleType_name = map[int32]string{
-		0: "BUNDLE_TYPE_UNSPECIFIED",
-		1: "BUNDLE_TYPE_ZIP",
+	SourceBundleType_name = map[int32]string{
+		0: "SOURCE_BUNDLE_TYPE_UNSPECIFIED",
+		1: "SOURCE_BUNDLE_TYPE_ZIP",
 	}
-	SourceBundleMetadata_BundleType_value = map[string]int32{
-		"BUNDLE_TYPE_UNSPECIFIED": 0,
-		"BUNDLE_TYPE_ZIP":         1,
+	SourceBundleType_value = map[string]int32{
+		"SOURCE_BUNDLE_TYPE_UNSPECIFIED": 0,
+		"SOURCE_BUNDLE_TYPE_ZIP":         1,
 	}
 )
 
-func (x SourceBundleMetadata_BundleType) Enum() *SourceBundleMetadata_BundleType {
-	p := new(SourceBundleMetadata_BundleType)
+func (x SourceBundleType) Enum() *SourceBundleType {
+	p := new(SourceBundleType)
 	*p = x
 	return p
 }
 
-func (x SourceBundleMetadata_BundleType) String() string {
+func (x SourceBundleType) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (SourceBundleMetadata_BundleType) Descriptor() protoreflect.EnumDescriptor {
+func (SourceBundleType) Descriptor() protoreflect.EnumDescriptor {
 	return file_faas_functions_v1_function_service_proto_enumTypes[0].Descriptor()
 }
 
-func (SourceBundleMetadata_BundleType) Type() protoreflect.EnumType {
+func (SourceBundleType) Type() protoreflect.EnumType {
 	return &file_faas_functions_v1_function_service_proto_enumTypes[0]
 }
 
-func (x SourceBundleMetadata_BundleType) Number() protoreflect.EnumNumber {
+func (x SourceBundleType) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use SourceBundleMetadata_BundleType.Descriptor instead.
-func (SourceBundleMetadata_BundleType) EnumDescriptor() ([]byte, []int) {
-	return file_faas_functions_v1_function_service_proto_rawDescGZIP(), []int{2, 0}
+// Deprecated: Use SourceBundleType.Descriptor instead.
+func (SourceBundleType) EnumDescriptor() ([]byte, []int) {
+	return file_faas_functions_v1_function_service_proto_rawDescGZIP(), []int{0}
 }
 
 type UploadFunctionSourceRequest struct {
@@ -202,10 +202,10 @@ func (x *UploadFunctionSourceMetadata) GetSourceBundleMetadata() *SourceBundleMe
 }
 
 type SourceBundleMetadata struct {
-	state         protoimpl.MessageState          `protogen:"open.v1"`
-	Type          SourceBundleMetadata_BundleType `protobuf:"varint,1,opt,name=type,proto3,enum=faas.functions.v1.SourceBundleMetadata_BundleType" json:"type,omitempty"`
-	FileName      string                          `protobuf:"bytes,2,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
-	SizeBytes     uint64                          `protobuf:"varint,3,opt,name=size_bytes,json=sizeBytes,proto3" json:"size_bytes,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          SourceBundleType       `protobuf:"varint,1,opt,name=type,proto3,enum=faas.functions.v1.SourceBundleType" json:"type,omitempty"`
+	FileName      string                 `protobuf:"bytes,2,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
+	Size          uint64                 `protobuf:"varint,3,opt,name=size,proto3" json:"size,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -240,11 +240,11 @@ func (*SourceBundleMetadata) Descriptor() ([]byte, []int) {
 	return file_faas_functions_v1_function_service_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *SourceBundleMetadata) GetType() SourceBundleMetadata_BundleType {
+func (x *SourceBundleMetadata) GetType() SourceBundleType {
 	if x != nil {
 		return x.Type
 	}
-	return SourceBundleMetadata_BUNDLE_TYPE_UNSPECIFIED
+	return SourceBundleType_SOURCE_BUNDLE_TYPE_UNSPECIFIED
 }
 
 func (x *SourceBundleMetadata) GetFileName() string {
@@ -254,9 +254,9 @@ func (x *SourceBundleMetadata) GetFileName() string {
 	return ""
 }
 
-func (x *SourceBundleMetadata) GetSizeBytes() uint64 {
+func (x *SourceBundleMetadata) GetSize() uint64 {
 	if x != nil {
-		return x.SizeBytes
+		return x.Size
 	}
 	return 0
 }
@@ -368,23 +368,21 @@ const file_faas_functions_v1_function_service_proto_rawDesc = "" +
 	"\apayload\"\xa2\x01\n" +
 	"\x1cUploadFunctionSourceMetadata\x12#\n" +
 	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\x12]\n" +
-	"\x16source_bundle_metadata\x18\x02 \x01(\v2'.faas.functions.v1.SourceBundleMetadataR\x14sourceBundleMetadata\"\xda\x01\n" +
-	"\x14SourceBundleMetadata\x12F\n" +
-	"\x04type\x18\x01 \x01(\x0e22.faas.functions.v1.SourceBundleMetadata.BundleTypeR\x04type\x12\x1b\n" +
-	"\tfile_name\x18\x02 \x01(\tR\bfileName\x12\x1d\n" +
-	"\n" +
-	"size_bytes\x18\x03 \x01(\x04R\tsizeBytes\">\n" +
-	"\n" +
-	"BundleType\x12\x1b\n" +
-	"\x17BUNDLE_TYPE_UNSPECIFIED\x10\x00\x12\x13\n" +
-	"\x0fBUNDLE_TYPE_ZIP\x10\x01\"!\n" +
+	"\x16source_bundle_metadata\x18\x02 \x01(\v2'.faas.functions.v1.SourceBundleMetadataR\x14sourceBundleMetadata\"\x80\x01\n" +
+	"\x14SourceBundleMetadata\x127\n" +
+	"\x04type\x18\x01 \x01(\x0e2#.faas.functions.v1.SourceBundleTypeR\x04type\x12\x1b\n" +
+	"\tfile_name\x18\x02 \x01(\tR\bfileName\x12\x12\n" +
+	"\x04size\x18\x03 \x01(\x04R\x04size\"!\n" +
 	"\vUploadChunk\x12\x12\n" +
 	"\x04data\x18\x01 \x01(\fR\x04data\"^\n" +
 	"\x1cUploadFunctionSourceResponse\x12\x1f\n" +
 	"\vfunction_id\x18\x01 \x01(\tR\n" +
 	"functionId\x12\x1d\n" +
 	"\n" +
-	"object_key\x18\x02 \x01(\tR\tobjectKey2\x8c\x01\n" +
+	"object_key\x18\x02 \x01(\tR\tobjectKey*R\n" +
+	"\x10SourceBundleType\x12\"\n" +
+	"\x1eSOURCE_BUNDLE_TYPE_UNSPECIFIED\x10\x00\x12\x1a\n" +
+	"\x16SOURCE_BUNDLE_TYPE_ZIP\x10\x012\x8c\x01\n" +
 	"\x0fFunctionService\x12y\n" +
 	"\x14UploadFunctionSource\x12..faas.functions.v1.UploadFunctionSourceRequest\x1a/.faas.functions.v1.UploadFunctionSourceResponse(\x01B@Z>github.com/10Narratives/faas/pkg/faas/functions/v1;functionspbb\x06proto3"
 
@@ -403,7 +401,7 @@ func file_faas_functions_v1_function_service_proto_rawDescGZIP() []byte {
 var file_faas_functions_v1_function_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_faas_functions_v1_function_service_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_faas_functions_v1_function_service_proto_goTypes = []any{
-	(SourceBundleMetadata_BundleType)(0), // 0: faas.functions.v1.SourceBundleMetadata.BundleType
+	(SourceBundleType)(0),                // 0: faas.functions.v1.SourceBundleType
 	(*UploadFunctionSourceRequest)(nil),  // 1: faas.functions.v1.UploadFunctionSourceRequest
 	(*UploadFunctionSourceMetadata)(nil), // 2: faas.functions.v1.UploadFunctionSourceMetadata
 	(*SourceBundleMetadata)(nil),         // 3: faas.functions.v1.SourceBundleMetadata
@@ -414,7 +412,7 @@ var file_faas_functions_v1_function_service_proto_depIdxs = []int32{
 	2, // 0: faas.functions.v1.UploadFunctionSourceRequest.metadata:type_name -> faas.functions.v1.UploadFunctionSourceMetadata
 	4, // 1: faas.functions.v1.UploadFunctionSourceRequest.chunk:type_name -> faas.functions.v1.UploadChunk
 	3, // 2: faas.functions.v1.UploadFunctionSourceMetadata.source_bundle_metadata:type_name -> faas.functions.v1.SourceBundleMetadata
-	0, // 3: faas.functions.v1.SourceBundleMetadata.type:type_name -> faas.functions.v1.SourceBundleMetadata.BundleType
+	0, // 3: faas.functions.v1.SourceBundleMetadata.type:type_name -> faas.functions.v1.SourceBundleType
 	1, // 4: faas.functions.v1.FunctionService.UploadFunctionSource:input_type -> faas.functions.v1.UploadFunctionSourceRequest
 	5, // 5: faas.functions.v1.FunctionService.UploadFunctionSource:output_type -> faas.functions.v1.UploadFunctionSourceResponse
 	5, // [5:6] is the sub-list for method output_type

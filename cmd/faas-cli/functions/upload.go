@@ -12,6 +12,7 @@ import (
 
 	funcdomain "github.com/10Narratives/faas/internal/domain/functions"
 	functionspb "github.com/10Narratives/faas/pkg/faas/functions/v1"
+
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -164,9 +165,9 @@ func uploadZip(ctx context.Context, addr, functionName, zipPath string) (*functi
 			Metadata: &functionspb.UploadFunctionSourceMetadata{
 				FunctionName: functionName,
 				SourceBundleMetadata: &functionspb.SourceBundleMetadata{
-					Type:      functionspb.SourceBundleMetadata_BUNDLE_TYPE_ZIP,
-					FileName:  filepath.Base(zipPath),
-					SizeBytes: uint64(st.Size()),
+					Type:     functionspb.SourceBundleType_SOURCE_BUNDLE_TYPE_ZIP,
+					FileName: filepath.Base(zipPath),
+					Size:     uint64(st.Size()),
 				},
 			},
 		},

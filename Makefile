@@ -1,26 +1,28 @@
+
+generate:
+	buf generate
+	mockery
+
+build: generate
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o build/faas-agent  ./cmd/faas-agent/
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o build/faas-gateway ./cmd/faas-gateway
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o build/faas-cli ./cmd/faas-cli
+	docker compose build --parallel
+
+start:
+	docker compose up -d
+
 stop:
-	docker compose down
+	docker compose stop
+
+ps:
+	docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Ports}}\t{{.Status}}"
 
 clean:
 	docker compose down -v --remove-orphans
 
-build-faas-agent:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o build/faas-agent  ./cmd/faas-agent/
-	
-build-faas-gateway:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o build/faas-gateway ./cmd/faas-gateway
+migrate-up:
+	migrate -source file://./schema/statedb/migrations -database "postgres://postgres:postgres@localhost:5432/statedb?sslmode=disable" up
 
-cli:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o build/faas ./cmd/faas-cli
-	sudo install -m 0755 build/faas /usr/local/bin/faas
-
-build: build-faas-agent build-faas-gateway
-
-start: build
-	docker compose up --build --detach
-
-generate:
-	buf generate
-
-mocks:
-	mockery
+migrate-down:
+	migrate -source file://./schema/statedb/migrations -database "postgres://postgres:postgres@localhost:5432/statedb?sslmode=disable" down

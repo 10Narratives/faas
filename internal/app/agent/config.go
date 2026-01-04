@@ -1,13 +1,29 @@
 package agentapp
 
 type Config struct {
+	Transport TransportConfig `yaml:"transport"`
+	Databases DatabasesConfig `yaml:"databases"`
+}
+
+type TransportConfig struct {
+	TaskQueue TaskQueueConfig `yaml:"task_queue"`
+}
+
+type TaskQueueConfig struct {
+	URL string `yaml:"url" env-required:"true"`
+}
+
+type DatabasesConfig struct {
+	StateDB       StateDBConfig       `yaml:"statedb"`
 	ObjectStorage ObjectStorageConfig `yaml:"object_storage"`
 }
 
+type StateDBConfig struct {
+	DSN string `yaml:"dsn" env-required:"true"`
+}
+
 type ObjectStorageConfig struct {
-	Endpoint            string `yaml:"endpoint" env-required:"true"`
-	FunctionsBucketName string `yaml:"functions_bucket_name" env-default:"functions"`
-	User                string `yaml:"user" env-required:"true"`
-	Password            string `yaml:"password" env-required:"true"`
-	UseSSL              bool   `yaml:"use_ssl" env-default:"false"`
+	Endpoint  string `yaml:"endpoint" env-required:"true"`
+	AccessKey string `yaml:"access_key" env-required:"true"`
+	SecretKey string `yaml:"secret_key" env-required:"true"`
 }

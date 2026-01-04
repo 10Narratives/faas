@@ -83,7 +83,7 @@ func (s *Server) UploadFunctionSource(stream grpc.ClientStreamingServer[function
 			SourceBundleMetadata: funcdomain.SourceBundleMetadata{
 				Type:     funcdomain.SourceBundleType(uploadMeta.GetSourceBundleMetadata().GetType()),
 				FileName: uploadMeta.GetSourceBundleMetadata().GetFileName(),
-				Size:     uploadMeta.GetSourceBundleMetadata().GetSizeBytes(),
+				Size:     uploadMeta.GetSourceBundleMetadata().GetSize(),
 			},
 		},
 	}

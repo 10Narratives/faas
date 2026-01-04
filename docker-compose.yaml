@@ -1,32 +1,73 @@
 services:
-  faas-agent:
-    build:
-      context: .
-      dockerfile: docker/faas-agent.dockerfile
-    container_name: faas-agent
-    user: "0:999"
-    volumes:
-      - ./configs/faas-agent.example.yaml:/etc/faas/config.yaml:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-    depends_on:
-      - object-storage
-    restart: unless-stopped
-    networks:
-      - faas-net
-
   faas-gateway:
     build:
       context: .
       dockerfile: docker/faas-gateway.dockerfile
     container_name: faas-gateway
     volumes:
+      - ./configs/faas-gateway.example.yaml:/etc/faas/config.yaml:ro
+    restart: unless-stopped
+    depends_on:
+      statedb:
+        condition: service_healthy
+      object-storage:
+        condition: service_healthy
+      task-queue:
+        condition: service_started
+      task-queue-health:
+        condition: service_completed_successfully
+
+  faas-agent:
+    build:
+      context: .
+      dockerfile: docker/faas-agent.dockerfile
+    scale: 2
+    volumes:
       - ./configs/faas-agent.example.yaml:/etc/faas/config.yaml:ro
     restart: unless-stopped
-    networks:
-      - faas-net
+    depends_on:
+      statedb:
+        condition: service_healthy
+      object-storage:
+        condition: service_healthy
+      task-queue:
+        condition: service_started
+      task-queue-health:
+        condition: service_completed_successfully
+
+  statedb:
+    image: postgres:17-alpine
+    container_name: faas-statedb
+    volumes:
+      - statedb-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=statedb
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d statedb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  statedb-monitoring:
+    image: dbeaver/cloudbeaver:latest
+    container_name: faas-statedb-monitoring
+    restart: unless-stopped
+    ports:
+      - "8978:8978"
+    volumes:
+      - statedb-monitoring-data:/opt/cloudbeaver/workspace
+    depends_on:
+      statedb:
+        condition: service_healthy
 
   object-storage:
     image: minio/minio:latest
+    container_name: faas-object-storage
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -37,64 +78,42 @@ services:
       - MINIO_ROOT_PASSWORD=minio_admin
     command: server /data --console-address ":9001"
     restart: unless-stopped
-    networks:
-      - faas-net
-
-  statedb:
-    image: postgres:17-alpine
-    container_name: faas-statedb
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: statedb
-    ports:
-      - "5432:5432"
-    volumes:
-      - statedb-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - faas-net
 
-  statedb-migrator:
-    image: migrate/migrate
-    container_name: faas-statedb-migrator
-    volumes:
-      - ./schema/statedb/migrations:/migrations
-    command:
-      [
-        "-path",
-        "/migrations",
-        "-database",
-        "postgres://postgres:postgres@statedb:5432/statedb?sslmode=disable",
-        "up",
-      ]
-    depends_on:
-      statedb:
-        condition: service_healthy
-    networks:
-      - faas-net
-
-  statedb-monitor:
-    image: dbeaver/cloudbeaver:latest
-    container_name: faas-statedb-monitor
-    restart: always
+  task-queue:
+    image: nats:latest
+    container_name: faas-task-queue
     ports:
-      - "8978:8978"
+      - "4222:4222"
+      - "8222:8222"
+    command: >
+      -js
+      -sd /data
+      -m 8222
     volumes:
-      - statedb-monitor-data:/opt/cloudbeaver/workspace
-    networks:
-      - faas-net
+      - task-queue-data:/data
+    restart: unless-stopped
+
+  task-queue-health:
+    image: curlimages/curl:8.5.0
+    depends_on:
+      task-queue:
+        condition: service_started
+    command: >
+      sh -c 'until curl -fsS "http://task-queue:8222/healthz?js-enabled-only=true" >/dev/null; do sleep 1; done'
+    restart: "no"
 
 volumes:
-  object-storage-data:
   statedb-data:
-  statedb-monitor-data:
+  statedb-monitoring-data:
+  object-storage-data:
+  task-queue-data:
 
 networks:
-  faas-net:
+  default:
+    name: faas-net
     driver: bridge

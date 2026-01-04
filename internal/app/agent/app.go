@@ -3,81 +3,64 @@ package agentapp
 import (
 	"context"
 	"fmt"
-	"net"
-	"net/http"
+	"time"
 
-	funcrepo "github.com/10Narratives/faas/internal/repositories/minio/functions"
-	"github.com/10Narratives/faas/internal/services/runtime"
+	miniocomp "github.com/10Narratives/faas/internal/app/components/minio"
+	natscomp "github.com/10Narratives/faas/internal/app/components/nats"
+	pgcomp "github.com/10Narratives/faas/internal/app/components/postgres"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
 
 type App struct {
+	cfg           *Config
+	log           *zap.Logger
+	stateDB       *pgxpool.Pool
 	objectStorage *minio.Client
-
-	functionRepository *funcrepo.Repository
-	runtime            *runtime.Runtime
-
-	cfg *Config
-	log *zap.Logger
+	taskQueue     *nats.Conn
 }
 
 func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
-	log.Info("object storage connection config",
-		zap.String("endpoint", cfg.ObjectStorage.Endpoint),
-		zap.String("user", cfg.ObjectStorage.User),
-		zap.Bool("use_ssl", cfg.ObjectStorage.UseSSL),
-	)
-
-	host, port, err := net.SplitHostPort(cfg.ObjectStorage.Endpoint)
+	stateDB, err := pgcomp.NewConnection(context.Background(), cfg.Databases.StateDB.DSN)
 	if err != nil {
-		host = cfg.ObjectStorage.Endpoint
-		port = "9000"
+		return nil, fmt.Errorf("cannot connect to state database: %w", err)
 	}
+	log.Info("connection to state database established")
 
-	objectStorage, err := minio.New(host, &minio.Options{
-		Creds:  credentials.NewStaticV4(cfg.ObjectStorage.User, cfg.ObjectStorage.Password, ""),
-		Secure: cfg.ObjectStorage.UseSSL,
-		Transport: &http.Transport{
-			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
-				return net.Dial(network, net.JoinHostPort(host, port))
-			},
-		},
-	})
+	objectStorage, err := miniocomp.NewConnection(context.Background(), cfg.Databases.ObjectStorage.Endpoint,
+		cfg.Databases.ObjectStorage.AccessKey, cfg.Databases.ObjectStorage.SecretKey, false)
 
 	if err != nil {
-		return nil, fmt.Errorf("cannot create new minio client: %w", err)
+		return nil, fmt.Errorf("cannot connect to object storage: %w", err)
 	}
+	log.Info("connection to object storage established")
 
-	functionRepository, err := funcrepo.NewRepository(objectStorage, cfg.ObjectStorage.FunctionsBucketName)
+	taskQueue, err := natscomp.NewConnection(cfg.Transport.TaskQueue.URL)
 	if err != nil {
-		return nil, fmt.Errorf("cannot initialize function repo: %w", err)
+		return nil, fmt.Errorf("cannot connect to task queue: %w", err)
 	}
-
-	runtime, err := runtime.NewRuntime(functionRepository)
-	if err != nil {
-		return nil, fmt.Errorf("cannot initialize runtime: %w", err)
-	}
+	log.Info("connection to task queue established")
 
 	return &App{
-		objectStorage:      objectStorage,
-		functionRepository: functionRepository,
-		runtime:            runtime,
-
-		cfg: cfg,
-		log: log,
+		cfg:           cfg,
+		log:           log,
+		stateDB:       stateDB,
+		objectStorage: objectStorage,
+		taskQueue:     taskQueue,
 	}, nil
 }
 
 func (a *App) Startup(ctx context.Context) error {
 	errGroup, ctx := errgroup.WithContext(ctx)
 
-	// a.log.Info("start running function")
-	// result, _ := a.runtime.RunFunction(ctx, "hello.py")
-	// a.log.Info("result", zap.ByteString("result", result))
-	// a.log.Info("stop running function")
+	errGroup.Go(func() error {
+		a.log.Info("agent online")
+		time.Sleep(1 * time.Minute)
+		return nil
+	})
 
 	return errGroup.Wait()
 }
