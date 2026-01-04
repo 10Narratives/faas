@@ -1,12 +1,12 @@
 package reflectapi
 
 import (
-	grpctr "github.com/10Narratives/faas/internal/transport/grpc"
+	grpcsrv "github.com/10Narratives/faas/internal/app/components/grpc/server"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
-func NewRegistration() grpctr.ServiceRegistration {
+func NewRegistration() grpcsrv.ServiceRegistration {
 	return func(s *grpc.Server) {
 		reflection.Register(s)
 	}

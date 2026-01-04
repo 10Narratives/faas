@@ -21,31 +21,77 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type UploadFunctionRequest struct {
+type SourceBundleMetadata_BundleType int32
+
+const (
+	SourceBundleMetadata_BUNDLE_TYPE_UNSPECIFIED SourceBundleMetadata_BundleType = 0
+	SourceBundleMetadata_BUNDLE_TYPE_ZIP         SourceBundleMetadata_BundleType = 1
+)
+
+// Enum value maps for SourceBundleMetadata_BundleType.
+var (
+	SourceBundleMetadata_BundleType_name = map[int32]string{
+		0: "BUNDLE_TYPE_UNSPECIFIED",
+		1: "BUNDLE_TYPE_ZIP",
+	}
+	SourceBundleMetadata_BundleType_value = map[string]int32{
+		"BUNDLE_TYPE_UNSPECIFIED": 0,
+		"BUNDLE_TYPE_ZIP":         1,
+	}
+)
+
+func (x SourceBundleMetadata_BundleType) Enum() *SourceBundleMetadata_BundleType {
+	p := new(SourceBundleMetadata_BundleType)
+	*p = x
+	return p
+}
+
+func (x SourceBundleMetadata_BundleType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SourceBundleMetadata_BundleType) Descriptor() protoreflect.EnumDescriptor {
+	return file_faas_functions_v1_function_service_proto_enumTypes[0].Descriptor()
+}
+
+func (SourceBundleMetadata_BundleType) Type() protoreflect.EnumType {
+	return &file_faas_functions_v1_function_service_proto_enumTypes[0]
+}
+
+func (x SourceBundleMetadata_BundleType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SourceBundleMetadata_BundleType.Descriptor instead.
+func (SourceBundleMetadata_BundleType) EnumDescriptor() ([]byte, []int) {
+	return file_faas_functions_v1_function_service_proto_rawDescGZIP(), []int{2, 0}
+}
+
+type UploadFunctionSourceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Types that are valid to be assigned to Data:
+	// Types that are valid to be assigned to Payload:
 	//
-	//	*UploadFunctionRequest_Function
-	//	*UploadFunctionRequest_Chunk
-	Data          isUploadFunctionRequest_Data `protobuf_oneof:"data"`
+	//	*UploadFunctionSourceRequest_Metadata
+	//	*UploadFunctionSourceRequest_Chunk
+	Payload       isUploadFunctionSourceRequest_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UploadFunctionRequest) Reset() {
-	*x = UploadFunctionRequest{}
+func (x *UploadFunctionSourceRequest) Reset() {
+	*x = UploadFunctionSourceRequest{}
 	mi := &file_faas_functions_v1_function_service_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UploadFunctionRequest) String() string {
+func (x *UploadFunctionSourceRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UploadFunctionRequest) ProtoMessage() {}
+func (*UploadFunctionSourceRequest) ProtoMessage() {}
 
-func (x *UploadFunctionRequest) ProtoReflect() protoreflect.Message {
+func (x *UploadFunctionSourceRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_faas_functions_v1_function_service_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -57,73 +103,74 @@ func (x *UploadFunctionRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UploadFunctionRequest.ProtoReflect.Descriptor instead.
-func (*UploadFunctionRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use UploadFunctionSourceRequest.ProtoReflect.Descriptor instead.
+func (*UploadFunctionSourceRequest) Descriptor() ([]byte, []int) {
 	return file_faas_functions_v1_function_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *UploadFunctionRequest) GetData() isUploadFunctionRequest_Data {
+func (x *UploadFunctionSourceRequest) GetPayload() isUploadFunctionSourceRequest_Payload {
 	if x != nil {
-		return x.Data
+		return x.Payload
 	}
 	return nil
 }
 
-func (x *UploadFunctionRequest) GetFunction() *Function {
+func (x *UploadFunctionSourceRequest) GetMetadata() *UploadFunctionSourceMetadata {
 	if x != nil {
-		if x, ok := x.Data.(*UploadFunctionRequest_Function); ok {
-			return x.Function
+		if x, ok := x.Payload.(*UploadFunctionSourceRequest_Metadata); ok {
+			return x.Metadata
 		}
 	}
 	return nil
 }
 
-func (x *UploadFunctionRequest) GetChunk() []byte {
+func (x *UploadFunctionSourceRequest) GetChunk() *UploadChunk {
 	if x != nil {
-		if x, ok := x.Data.(*UploadFunctionRequest_Chunk); ok {
+		if x, ok := x.Payload.(*UploadFunctionSourceRequest_Chunk); ok {
 			return x.Chunk
 		}
 	}
 	return nil
 }
 
-type isUploadFunctionRequest_Data interface {
-	isUploadFunctionRequest_Data()
+type isUploadFunctionSourceRequest_Payload interface {
+	isUploadFunctionSourceRequest_Payload()
 }
 
-type UploadFunctionRequest_Function struct {
-	Function *Function `protobuf:"bytes,1,opt,name=function,proto3,oneof"`
+type UploadFunctionSourceRequest_Metadata struct {
+	Metadata *UploadFunctionSourceMetadata `protobuf:"bytes,1,opt,name=metadata,proto3,oneof"`
 }
 
-type UploadFunctionRequest_Chunk struct {
-	Chunk []byte `protobuf:"bytes,2,opt,name=chunk,proto3,oneof"`
+type UploadFunctionSourceRequest_Chunk struct {
+	Chunk *UploadChunk `protobuf:"bytes,2,opt,name=chunk,proto3,oneof"`
 }
 
-func (*UploadFunctionRequest_Function) isUploadFunctionRequest_Data() {}
+func (*UploadFunctionSourceRequest_Metadata) isUploadFunctionSourceRequest_Payload() {}
 
-func (*UploadFunctionRequest_Chunk) isUploadFunctionRequest_Data() {}
+func (*UploadFunctionSourceRequest_Chunk) isUploadFunctionSourceRequest_Payload() {}
 
-type UploadFunctionResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Function      *Function              `protobuf:"bytes,1,opt,name=function,proto3" json:"function,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+type UploadFunctionSourceMetadata struct {
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	FunctionName         string                 `protobuf:"bytes,1,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"`
+	SourceBundleMetadata *SourceBundleMetadata  `protobuf:"bytes,2,opt,name=source_bundle_metadata,json=sourceBundleMetadata,proto3" json:"source_bundle_metadata,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
-func (x *UploadFunctionResponse) Reset() {
-	*x = UploadFunctionResponse{}
+func (x *UploadFunctionSourceMetadata) Reset() {
+	*x = UploadFunctionSourceMetadata{}
 	mi := &file_faas_functions_v1_function_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UploadFunctionResponse) String() string {
+func (x *UploadFunctionSourceMetadata) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UploadFunctionResponse) ProtoMessage() {}
+func (*UploadFunctionSourceMetadata) ProtoMessage() {}
 
-func (x *UploadFunctionResponse) ProtoReflect() protoreflect.Message {
+func (x *UploadFunctionSourceMetadata) ProtoReflect() protoreflect.Message {
 	mi := &file_faas_functions_v1_function_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -135,31 +182,211 @@ func (x *UploadFunctionResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UploadFunctionResponse.ProtoReflect.Descriptor instead.
-func (*UploadFunctionResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use UploadFunctionSourceMetadata.ProtoReflect.Descriptor instead.
+func (*UploadFunctionSourceMetadata) Descriptor() ([]byte, []int) {
 	return file_faas_functions_v1_function_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *UploadFunctionResponse) GetFunction() *Function {
+func (x *UploadFunctionSourceMetadata) GetFunctionName() string {
 	if x != nil {
-		return x.Function
+		return x.FunctionName
+	}
+	return ""
+}
+
+func (x *UploadFunctionSourceMetadata) GetSourceBundleMetadata() *SourceBundleMetadata {
+	if x != nil {
+		return x.SourceBundleMetadata
 	}
 	return nil
+}
+
+type SourceBundleMetadata struct {
+	state         protoimpl.MessageState          `protogen:"open.v1"`
+	Type          SourceBundleMetadata_BundleType `protobuf:"varint,1,opt,name=type,proto3,enum=faas.functions.v1.SourceBundleMetadata_BundleType" json:"type,omitempty"`
+	FileName      string                          `protobuf:"bytes,2,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
+	SizeBytes     uint64                          `protobuf:"varint,3,opt,name=size_bytes,json=sizeBytes,proto3" json:"size_bytes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SourceBundleMetadata) Reset() {
+	*x = SourceBundleMetadata{}
+	mi := &file_faas_functions_v1_function_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SourceBundleMetadata) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SourceBundleMetadata) ProtoMessage() {}
+
+func (x *SourceBundleMetadata) ProtoReflect() protoreflect.Message {
+	mi := &file_faas_functions_v1_function_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SourceBundleMetadata.ProtoReflect.Descriptor instead.
+func (*SourceBundleMetadata) Descriptor() ([]byte, []int) {
+	return file_faas_functions_v1_function_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *SourceBundleMetadata) GetType() SourceBundleMetadata_BundleType {
+	if x != nil {
+		return x.Type
+	}
+	return SourceBundleMetadata_BUNDLE_TYPE_UNSPECIFIED
+}
+
+func (x *SourceBundleMetadata) GetFileName() string {
+	if x != nil {
+		return x.FileName
+	}
+	return ""
+}
+
+func (x *SourceBundleMetadata) GetSizeBytes() uint64 {
+	if x != nil {
+		return x.SizeBytes
+	}
+	return 0
+}
+
+type UploadChunk struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Data          []byte                 `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadChunk) Reset() {
+	*x = UploadChunk{}
+	mi := &file_faas_functions_v1_function_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadChunk) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadChunk) ProtoMessage() {}
+
+func (x *UploadChunk) ProtoReflect() protoreflect.Message {
+	mi := &file_faas_functions_v1_function_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadChunk.ProtoReflect.Descriptor instead.
+func (*UploadChunk) Descriptor() ([]byte, []int) {
+	return file_faas_functions_v1_function_service_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *UploadChunk) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type UploadFunctionSourceResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FunctionId    string                 `protobuf:"bytes,1,opt,name=function_id,json=functionId,proto3" json:"function_id,omitempty"`
+	ObjectKey     string                 `protobuf:"bytes,2,opt,name=object_key,json=objectKey,proto3" json:"object_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UploadFunctionSourceResponse) Reset() {
+	*x = UploadFunctionSourceResponse{}
+	mi := &file_faas_functions_v1_function_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UploadFunctionSourceResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadFunctionSourceResponse) ProtoMessage() {}
+
+func (x *UploadFunctionSourceResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_faas_functions_v1_function_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadFunctionSourceResponse.ProtoReflect.Descriptor instead.
+func (*UploadFunctionSourceResponse) Descriptor() ([]byte, []int) {
+	return file_faas_functions_v1_function_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *UploadFunctionSourceResponse) GetFunctionId() string {
+	if x != nil {
+		return x.FunctionId
+	}
+	return ""
+}
+
+func (x *UploadFunctionSourceResponse) GetObjectKey() string {
+	if x != nil {
+		return x.ObjectKey
+	}
+	return ""
 }
 
 var File_faas_functions_v1_function_service_proto protoreflect.FileDescriptor
 
 const file_faas_functions_v1_function_service_proto_rawDesc = "" +
 	"\n" +
-	"(faas/functions/v1/function_service.proto\x12\x11faas.functions.v1\x1a faas/functions/v1/function.proto\"r\n" +
-	"\x15UploadFunctionRequest\x129\n" +
-	"\bfunction\x18\x01 \x01(\v2\x1b.faas.functions.v1.FunctionH\x00R\bfunction\x12\x16\n" +
-	"\x05chunk\x18\x02 \x01(\fH\x00R\x05chunkB\x06\n" +
-	"\x04data\"Q\n" +
-	"\x16UploadFunctionResponse\x127\n" +
-	"\bfunction\x18\x01 \x01(\v2\x1b.faas.functions.v1.FunctionR\bfunction2z\n" +
-	"\x0fFunctionService\x12g\n" +
-	"\x0eUploadFunction\x12(.faas.functions.v1.UploadFunctionRequest\x1a).faas.functions.v1.UploadFunctionResponse(\x01B@Z>github.com/10Narratives/faas/pkg/faas/functions/v1;functionspbb\x06proto3"
+	"(faas/functions/v1/function_service.proto\x12\x11faas.functions.v1\"\xaf\x01\n" +
+	"\x1bUploadFunctionSourceRequest\x12M\n" +
+	"\bmetadata\x18\x01 \x01(\v2/.faas.functions.v1.UploadFunctionSourceMetadataH\x00R\bmetadata\x126\n" +
+	"\x05chunk\x18\x02 \x01(\v2\x1e.faas.functions.v1.UploadChunkH\x00R\x05chunkB\t\n" +
+	"\apayload\"\xa2\x01\n" +
+	"\x1cUploadFunctionSourceMetadata\x12#\n" +
+	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\x12]\n" +
+	"\x16source_bundle_metadata\x18\x02 \x01(\v2'.faas.functions.v1.SourceBundleMetadataR\x14sourceBundleMetadata\"\xda\x01\n" +
+	"\x14SourceBundleMetadata\x12F\n" +
+	"\x04type\x18\x01 \x01(\x0e22.faas.functions.v1.SourceBundleMetadata.BundleTypeR\x04type\x12\x1b\n" +
+	"\tfile_name\x18\x02 \x01(\tR\bfileName\x12\x1d\n" +
+	"\n" +
+	"size_bytes\x18\x03 \x01(\x04R\tsizeBytes\">\n" +
+	"\n" +
+	"BundleType\x12\x1b\n" +
+	"\x17BUNDLE_TYPE_UNSPECIFIED\x10\x00\x12\x13\n" +
+	"\x0fBUNDLE_TYPE_ZIP\x10\x01\"!\n" +
+	"\vUploadChunk\x12\x12\n" +
+	"\x04data\x18\x01 \x01(\fR\x04data\"^\n" +
+	"\x1cUploadFunctionSourceResponse\x12\x1f\n" +
+	"\vfunction_id\x18\x01 \x01(\tR\n" +
+	"functionId\x12\x1d\n" +
+	"\n" +
+	"object_key\x18\x02 \x01(\tR\tobjectKey2\x8c\x01\n" +
+	"\x0fFunctionService\x12y\n" +
+	"\x14UploadFunctionSource\x12..faas.functions.v1.UploadFunctionSourceRequest\x1a/.faas.functions.v1.UploadFunctionSourceResponse(\x01B@Z>github.com/10Narratives/faas/pkg/faas/functions/v1;functionspbb\x06proto3"
 
 var (
 	file_faas_functions_v1_function_service_proto_rawDescOnce sync.Once
@@ -173,22 +400,28 @@ func file_faas_functions_v1_function_service_proto_rawDescGZIP() []byte {
 	return file_faas_functions_v1_function_service_proto_rawDescData
 }
 
-var file_faas_functions_v1_function_service_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_faas_functions_v1_function_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_faas_functions_v1_function_service_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_faas_functions_v1_function_service_proto_goTypes = []any{
-	(*UploadFunctionRequest)(nil),  // 0: faas.functions.v1.UploadFunctionRequest
-	(*UploadFunctionResponse)(nil), // 1: faas.functions.v1.UploadFunctionResponse
-	(*Function)(nil),               // 2: faas.functions.v1.Function
+	(SourceBundleMetadata_BundleType)(0), // 0: faas.functions.v1.SourceBundleMetadata.BundleType
+	(*UploadFunctionSourceRequest)(nil),  // 1: faas.functions.v1.UploadFunctionSourceRequest
+	(*UploadFunctionSourceMetadata)(nil), // 2: faas.functions.v1.UploadFunctionSourceMetadata
+	(*SourceBundleMetadata)(nil),         // 3: faas.functions.v1.SourceBundleMetadata
+	(*UploadChunk)(nil),                  // 4: faas.functions.v1.UploadChunk
+	(*UploadFunctionSourceResponse)(nil), // 5: faas.functions.v1.UploadFunctionSourceResponse
 }
 var file_faas_functions_v1_function_service_proto_depIdxs = []int32{
-	2, // 0: faas.functions.v1.UploadFunctionRequest.function:type_name -> faas.functions.v1.Function
-	2, // 1: faas.functions.v1.UploadFunctionResponse.function:type_name -> faas.functions.v1.Function
-	0, // 2: faas.functions.v1.FunctionService.UploadFunction:input_type -> faas.functions.v1.UploadFunctionRequest
-	1, // 3: faas.functions.v1.FunctionService.UploadFunction:output_type -> faas.functions.v1.UploadFunctionResponse
-	3, // [3:4] is the sub-list for method output_type
-	2, // [2:3] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	2, // 0: faas.functions.v1.UploadFunctionSourceRequest.metadata:type_name -> faas.functions.v1.UploadFunctionSourceMetadata
+	4, // 1: faas.functions.v1.UploadFunctionSourceRequest.chunk:type_name -> faas.functions.v1.UploadChunk
+	3, // 2: faas.functions.v1.UploadFunctionSourceMetadata.source_bundle_metadata:type_name -> faas.functions.v1.SourceBundleMetadata
+	0, // 3: faas.functions.v1.SourceBundleMetadata.type:type_name -> faas.functions.v1.SourceBundleMetadata.BundleType
+	1, // 4: faas.functions.v1.FunctionService.UploadFunctionSource:input_type -> faas.functions.v1.UploadFunctionSourceRequest
+	5, // 5: faas.functions.v1.FunctionService.UploadFunctionSource:output_type -> faas.functions.v1.UploadFunctionSourceResponse
+	5, // [5:6] is the sub-list for method output_type
+	4, // [4:5] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_faas_functions_v1_function_service_proto_init() }
@@ -196,23 +429,23 @@ func file_faas_functions_v1_function_service_proto_init() {
 	if File_faas_functions_v1_function_service_proto != nil {
 		return
 	}
-	file_faas_functions_v1_function_proto_init()
 	file_faas_functions_v1_function_service_proto_msgTypes[0].OneofWrappers = []any{
-		(*UploadFunctionRequest_Function)(nil),
-		(*UploadFunctionRequest_Chunk)(nil),
+		(*UploadFunctionSourceRequest_Metadata)(nil),
+		(*UploadFunctionSourceRequest_Chunk)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_faas_functions_v1_function_service_proto_rawDesc), len(file_faas_functions_v1_function_service_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   2,
+			NumEnums:      1,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_faas_functions_v1_function_service_proto_goTypes,
 		DependencyIndexes: file_faas_functions_v1_function_service_proto_depIdxs,
+		EnumInfos:         file_faas_functions_v1_function_service_proto_enumTypes,
 		MessageInfos:      file_faas_functions_v1_function_service_proto_msgTypes,
 	}.Build()
 	File_faas_functions_v1_function_service_proto = out.File

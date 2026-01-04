@@ -35,33 +35,33 @@ var (
 	_ = sort.Sort
 )
 
-// Validate checks the field values on UploadFunctionRequest with the rules
-// defined in the proto definition for this message. If any rules are
+// Validate checks the field values on UploadFunctionSourceRequest with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *UploadFunctionRequest) Validate() error {
+func (m *UploadFunctionSourceRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on UploadFunctionRequest with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on UploadFunctionSourceRequest with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// UploadFunctionRequestMultiError, or nil if none found.
-func (m *UploadFunctionRequest) ValidateAll() error {
+// UploadFunctionSourceRequestMultiError, or nil if none found.
+func (m *UploadFunctionSourceRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *UploadFunctionRequest) validate(all bool) error {
+func (m *UploadFunctionSourceRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	switch v := m.Data.(type) {
-	case *UploadFunctionRequest_Function:
+	switch v := m.Payload.(type) {
+	case *UploadFunctionSourceRequest_Metadata:
 		if v == nil {
-			err := UploadFunctionRequestValidationError{
-				field:  "Data",
+			err := UploadFunctionSourceRequestValidationError{
+				field:  "Payload",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -71,38 +71,38 @@ func (m *UploadFunctionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetFunction()).(type) {
+			switch v := interface{}(m.GetMetadata()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, UploadFunctionRequestValidationError{
-						field:  "Function",
+					errors = append(errors, UploadFunctionSourceRequestValidationError{
+						field:  "Metadata",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, UploadFunctionRequestValidationError{
-						field:  "Function",
+					errors = append(errors, UploadFunctionSourceRequestValidationError{
+						field:  "Metadata",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetFunction()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return UploadFunctionRequestValidationError{
-					field:  "Function",
+				return UploadFunctionSourceRequestValidationError{
+					field:  "Metadata",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
 			}
 		}
 
-	case *UploadFunctionRequest_Chunk:
+	case *UploadFunctionSourceRequest_Chunk:
 		if v == nil {
-			err := UploadFunctionRequestValidationError{
-				field:  "Data",
+			err := UploadFunctionSourceRequestValidationError{
+				field:  "Payload",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -110,25 +110,54 @@ func (m *UploadFunctionRequest) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
-		// no validation rules for Chunk
+
+		if all {
+			switch v := interface{}(m.GetChunk()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, UploadFunctionSourceRequestValidationError{
+						field:  "Chunk",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, UploadFunctionSourceRequestValidationError{
+						field:  "Chunk",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetChunk()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return UploadFunctionSourceRequestValidationError{
+					field:  "Chunk",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
 
 	if len(errors) > 0 {
-		return UploadFunctionRequestMultiError(errors)
+		return UploadFunctionSourceRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// UploadFunctionRequestMultiError is an error wrapping multiple validation
-// errors returned by UploadFunctionRequest.ValidateAll() if the designated
-// constraints aren't met.
-type UploadFunctionRequestMultiError []error
+// UploadFunctionSourceRequestMultiError is an error wrapping multiple
+// validation errors returned by UploadFunctionSourceRequest.ValidateAll() if
+// the designated constraints aren't met.
+type UploadFunctionSourceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m UploadFunctionRequestMultiError) Error() string {
+func (m UploadFunctionSourceRequestMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -137,11 +166,12 @@ func (m UploadFunctionRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m UploadFunctionRequestMultiError) AllErrors() []error { return m }
+func (m UploadFunctionSourceRequestMultiError) AllErrors() []error { return m }
 
-// UploadFunctionRequestValidationError is the validation error returned by
-// UploadFunctionRequest.Validate if the designated constraints aren't met.
-type UploadFunctionRequestValidationError struct {
+// UploadFunctionSourceRequestValidationError is the validation error returned
+// by UploadFunctionSourceRequest.Validate if the designated constraints
+// aren't met.
+type UploadFunctionSourceRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -149,24 +179,24 @@ type UploadFunctionRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e UploadFunctionRequestValidationError) Field() string { return e.field }
+func (e UploadFunctionSourceRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UploadFunctionRequestValidationError) Reason() string { return e.reason }
+func (e UploadFunctionSourceRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UploadFunctionRequestValidationError) Cause() error { return e.cause }
+func (e UploadFunctionSourceRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UploadFunctionRequestValidationError) Key() bool { return e.key }
+func (e UploadFunctionSourceRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UploadFunctionRequestValidationError) ErrorName() string {
-	return "UploadFunctionRequestValidationError"
+func (e UploadFunctionSourceRequestValidationError) ErrorName() string {
+	return "UploadFunctionSourceRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e UploadFunctionRequestValidationError) Error() string {
+func (e UploadFunctionSourceRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -178,14 +208,14 @@ func (e UploadFunctionRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUploadFunctionRequest.%s: %s%s",
+		"invalid %sUploadFunctionSourceRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UploadFunctionRequestValidationError{}
+var _ error = UploadFunctionSourceRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -193,53 +223,55 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UploadFunctionRequestValidationError{}
+} = UploadFunctionSourceRequestValidationError{}
 
-// Validate checks the field values on UploadFunctionResponse with the rules
-// defined in the proto definition for this message. If any rules are
+// Validate checks the field values on UploadFunctionSourceMetadata with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *UploadFunctionResponse) Validate() error {
+func (m *UploadFunctionSourceMetadata) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on UploadFunctionResponse with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on UploadFunctionSourceMetadata with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// UploadFunctionResponseMultiError, or nil if none found.
-func (m *UploadFunctionResponse) ValidateAll() error {
+// UploadFunctionSourceMetadataMultiError, or nil if none found.
+func (m *UploadFunctionSourceMetadata) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *UploadFunctionResponse) validate(all bool) error {
+func (m *UploadFunctionSourceMetadata) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
+	// no validation rules for FunctionName
+
 	if all {
-		switch v := interface{}(m.GetFunction()).(type) {
+		switch v := interface{}(m.GetSourceBundleMetadata()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, UploadFunctionResponseValidationError{
-					field:  "Function",
+				errors = append(errors, UploadFunctionSourceMetadataValidationError{
+					field:  "SourceBundleMetadata",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, UploadFunctionResponseValidationError{
-					field:  "Function",
+				errors = append(errors, UploadFunctionSourceMetadataValidationError{
+					field:  "SourceBundleMetadata",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetFunction()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetSourceBundleMetadata()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return UploadFunctionResponseValidationError{
-				field:  "Function",
+			return UploadFunctionSourceMetadataValidationError{
+				field:  "SourceBundleMetadata",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -247,19 +279,19 @@ func (m *UploadFunctionResponse) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return UploadFunctionResponseMultiError(errors)
+		return UploadFunctionSourceMetadataMultiError(errors)
 	}
 
 	return nil
 }
 
-// UploadFunctionResponseMultiError is an error wrapping multiple validation
-// errors returned by UploadFunctionResponse.ValidateAll() if the designated
-// constraints aren't met.
-type UploadFunctionResponseMultiError []error
+// UploadFunctionSourceMetadataMultiError is an error wrapping multiple
+// validation errors returned by UploadFunctionSourceMetadata.ValidateAll() if
+// the designated constraints aren't met.
+type UploadFunctionSourceMetadataMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m UploadFunctionResponseMultiError) Error() string {
+func (m UploadFunctionSourceMetadataMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -268,11 +300,12 @@ func (m UploadFunctionResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m UploadFunctionResponseMultiError) AllErrors() []error { return m }
+func (m UploadFunctionSourceMetadataMultiError) AllErrors() []error { return m }
 
-// UploadFunctionResponseValidationError is the validation error returned by
-// UploadFunctionResponse.Validate if the designated constraints aren't met.
-type UploadFunctionResponseValidationError struct {
+// UploadFunctionSourceMetadataValidationError is the validation error returned
+// by UploadFunctionSourceMetadata.Validate if the designated constraints
+// aren't met.
+type UploadFunctionSourceMetadataValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -280,24 +313,24 @@ type UploadFunctionResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e UploadFunctionResponseValidationError) Field() string { return e.field }
+func (e UploadFunctionSourceMetadataValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UploadFunctionResponseValidationError) Reason() string { return e.reason }
+func (e UploadFunctionSourceMetadataValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UploadFunctionResponseValidationError) Cause() error { return e.cause }
+func (e UploadFunctionSourceMetadataValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UploadFunctionResponseValidationError) Key() bool { return e.key }
+func (e UploadFunctionSourceMetadataValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UploadFunctionResponseValidationError) ErrorName() string {
-	return "UploadFunctionResponseValidationError"
+func (e UploadFunctionSourceMetadataValidationError) ErrorName() string {
+	return "UploadFunctionSourceMetadataValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e UploadFunctionResponseValidationError) Error() string {
+func (e UploadFunctionSourceMetadataValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -309,14 +342,14 @@ func (e UploadFunctionResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUploadFunctionResponse.%s: %s%s",
+		"invalid %sUploadFunctionSourceMetadata.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UploadFunctionResponseValidationError{}
+var _ error = UploadFunctionSourceMetadataValidationError{}
 
 var _ interface {
 	Field() string
@@ -324,4 +357,320 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UploadFunctionResponseValidationError{}
+} = UploadFunctionSourceMetadataValidationError{}
+
+// Validate checks the field values on SourceBundleMetadata with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SourceBundleMetadata) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SourceBundleMetadata with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SourceBundleMetadataMultiError, or nil if none found.
+func (m *SourceBundleMetadata) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SourceBundleMetadata) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Type
+
+	// no validation rules for FileName
+
+	// no validation rules for SizeBytes
+
+	if len(errors) > 0 {
+		return SourceBundleMetadataMultiError(errors)
+	}
+
+	return nil
+}
+
+// SourceBundleMetadataMultiError is an error wrapping multiple validation
+// errors returned by SourceBundleMetadata.ValidateAll() if the designated
+// constraints aren't met.
+type SourceBundleMetadataMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SourceBundleMetadataMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SourceBundleMetadataMultiError) AllErrors() []error { return m }
+
+// SourceBundleMetadataValidationError is the validation error returned by
+// SourceBundleMetadata.Validate if the designated constraints aren't met.
+type SourceBundleMetadataValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SourceBundleMetadataValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SourceBundleMetadataValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SourceBundleMetadataValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SourceBundleMetadataValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SourceBundleMetadataValidationError) ErrorName() string {
+	return "SourceBundleMetadataValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SourceBundleMetadataValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSourceBundleMetadata.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SourceBundleMetadataValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SourceBundleMetadataValidationError{}
+
+// Validate checks the field values on UploadChunk with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *UploadChunk) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UploadChunk with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in UploadChunkMultiError, or
+// nil if none found.
+func (m *UploadChunk) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UploadChunk) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Data
+
+	if len(errors) > 0 {
+		return UploadChunkMultiError(errors)
+	}
+
+	return nil
+}
+
+// UploadChunkMultiError is an error wrapping multiple validation errors
+// returned by UploadChunk.ValidateAll() if the designated constraints aren't met.
+type UploadChunkMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UploadChunkMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UploadChunkMultiError) AllErrors() []error { return m }
+
+// UploadChunkValidationError is the validation error returned by
+// UploadChunk.Validate if the designated constraints aren't met.
+type UploadChunkValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UploadChunkValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UploadChunkValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UploadChunkValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UploadChunkValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UploadChunkValidationError) ErrorName() string { return "UploadChunkValidationError" }
+
+// Error satisfies the builtin error interface
+func (e UploadChunkValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUploadChunk.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UploadChunkValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UploadChunkValidationError{}
+
+// Validate checks the field values on UploadFunctionSourceResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UploadFunctionSourceResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UploadFunctionSourceResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UploadFunctionSourceResponseMultiError, or nil if none found.
+func (m *UploadFunctionSourceResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UploadFunctionSourceResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for FunctionId
+
+	// no validation rules for ObjectKey
+
+	if len(errors) > 0 {
+		return UploadFunctionSourceResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// UploadFunctionSourceResponseMultiError is an error wrapping multiple
+// validation errors returned by UploadFunctionSourceResponse.ValidateAll() if
+// the designated constraints aren't met.
+type UploadFunctionSourceResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UploadFunctionSourceResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UploadFunctionSourceResponseMultiError) AllErrors() []error { return m }
+
+// UploadFunctionSourceResponseValidationError is the validation error returned
+// by UploadFunctionSourceResponse.Validate if the designated constraints
+// aren't met.
+type UploadFunctionSourceResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UploadFunctionSourceResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UploadFunctionSourceResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UploadFunctionSourceResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UploadFunctionSourceResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UploadFunctionSourceResponseValidationError) ErrorName() string {
+	return "UploadFunctionSourceResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UploadFunctionSourceResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUploadFunctionSourceResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UploadFunctionSourceResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UploadFunctionSourceResponseValidationError{}

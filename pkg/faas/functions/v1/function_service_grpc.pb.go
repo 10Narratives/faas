@@ -19,16 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	FunctionService_UploadFunction_FullMethodName = "/faas.functions.v1.FunctionService/UploadFunction"
+	FunctionService_UploadFunctionSource_FullMethodName = "/faas.functions.v1.FunctionService/UploadFunctionSource"
 )
 
 // FunctionServiceClient is the client API for FunctionService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// Service for managing serverless functions.
 type FunctionServiceClient interface {
-	UploadFunction(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadFunctionRequest, UploadFunctionResponse], error)
+	UploadFunctionSource(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadFunctionSourceRequest, UploadFunctionSourceResponse], error)
 }
 
 type functionServiceClient struct {
@@ -39,26 +37,24 @@ func NewFunctionServiceClient(cc grpc.ClientConnInterface) FunctionServiceClient
 	return &functionServiceClient{cc}
 }
 
-func (c *functionServiceClient) UploadFunction(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadFunctionRequest, UploadFunctionResponse], error) {
+func (c *functionServiceClient) UploadFunctionSource(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadFunctionSourceRequest, UploadFunctionSourceResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &FunctionService_ServiceDesc.Streams[0], FunctionService_UploadFunction_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &FunctionService_ServiceDesc.Streams[0], FunctionService_UploadFunctionSource_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[UploadFunctionRequest, UploadFunctionResponse]{ClientStream: stream}
+	x := &grpc.GenericClientStream[UploadFunctionSourceRequest, UploadFunctionSourceResponse]{ClientStream: stream}
 	return x, nil
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type FunctionService_UploadFunctionClient = grpc.ClientStreamingClient[UploadFunctionRequest, UploadFunctionResponse]
+type FunctionService_UploadFunctionSourceClient = grpc.ClientStreamingClient[UploadFunctionSourceRequest, UploadFunctionSourceResponse]
 
 // FunctionServiceServer is the server API for FunctionService service.
 // All implementations must embed UnimplementedFunctionServiceServer
 // for forward compatibility.
-//
-// Service for managing serverless functions.
 type FunctionServiceServer interface {
-	UploadFunction(grpc.ClientStreamingServer[UploadFunctionRequest, UploadFunctionResponse]) error
+	UploadFunctionSource(grpc.ClientStreamingServer[UploadFunctionSourceRequest, UploadFunctionSourceResponse]) error
 	mustEmbedUnimplementedFunctionServiceServer()
 }
 
@@ -69,8 +65,8 @@ type FunctionServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedFunctionServiceServer struct{}
 
-func (UnimplementedFunctionServiceServer) UploadFunction(grpc.ClientStreamingServer[UploadFunctionRequest, UploadFunctionResponse]) error {
-	return status.Error(codes.Unimplemented, "method UploadFunction not implemented")
+func (UnimplementedFunctionServiceServer) UploadFunctionSource(grpc.ClientStreamingServer[UploadFunctionSourceRequest, UploadFunctionSourceResponse]) error {
+	return status.Error(codes.Unimplemented, "method UploadFunctionSource not implemented")
 }
 func (UnimplementedFunctionServiceServer) mustEmbedUnimplementedFunctionServiceServer() {}
 func (UnimplementedFunctionServiceServer) testEmbeddedByValue()                         {}
@@ -93,12 +89,12 @@ func RegisterFunctionServiceServer(s grpc.ServiceRegistrar, srv FunctionServiceS
 	s.RegisterService(&FunctionService_ServiceDesc, srv)
 }
 
-func _FunctionService_UploadFunction_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(FunctionServiceServer).UploadFunction(&grpc.GenericServerStream[UploadFunctionRequest, UploadFunctionResponse]{ServerStream: stream})
+func _FunctionService_UploadFunctionSource_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(FunctionServiceServer).UploadFunctionSource(&grpc.GenericServerStream[UploadFunctionSourceRequest, UploadFunctionSourceResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type FunctionService_UploadFunctionServer = grpc.ClientStreamingServer[UploadFunctionRequest, UploadFunctionResponse]
+type FunctionService_UploadFunctionSourceServer = grpc.ClientStreamingServer[UploadFunctionSourceRequest, UploadFunctionSourceResponse]
 
 // FunctionService_ServiceDesc is the grpc.ServiceDesc for FunctionService service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -109,8 +105,8 @@ var FunctionService_ServiceDesc = grpc.ServiceDesc{
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "UploadFunction",
-			Handler:       _FunctionService_UploadFunction_Handler,
+			StreamName:    "UploadFunctionSource",
+			Handler:       _FunctionService_UploadFunctionSource_Handler,
 			ClientStreams: true,
 		},
 	},

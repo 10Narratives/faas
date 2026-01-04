@@ -1,4 +1,4 @@
-package grpctr
+package grpcsrv
 
 import "google.golang.org/grpc"
 

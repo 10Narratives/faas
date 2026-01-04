@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "faas/functions/v1/function.proto",
+    "title": "faas/functions/v1/function_service.proto",
     "version": "version not set"
   },
   "tags": [
@@ -17,6 +17,14 @@
   ],
   "paths": {},
   "definitions": {
+    "SourceBundleMetadataBundleType": {
+      "type": "string",
+      "enum": [
+        "BUNDLE_TYPE_UNSPECIFIED",
+        "BUNDLE_TYPE_ZIP"
+      ],
+      "default": "BUNDLE_TYPE_UNSPECIFIED"
+    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -45,37 +53,49 @@
         }
       }
     },
-    "v1Function": {
+    "v1SourceBundleMetadata": {
       "type": "object",
       "properties": {
-        "name": {
-          "type": "string",
-          "title": "The resource name of the function.\nFormat: `functions/{function_id}`"
+        "type": {
+          "$ref": "#/definitions/SourceBundleMetadataBundleType"
         },
-        "parametersSchema": {
+        "fileName": {
           "type": "string"
         },
-        "entrypoint": {
+        "sizeBytes": {
           "type": "string",
-          "description": "The entry point file for the function."
-        },
-        "sourcePath": {
-          "type": "string",
-          "description": "The path to the source code in the storage system.",
-          "readOnly": true
+          "format": "uint64"
         }
-      },
-      "description": "A serverless function resource.",
-      "required": [
-        "parametersSchema",
-        "entrypoint"
-      ]
+      }
     },
-    "v1UploadFunctionResponse": {
+    "v1UploadChunk": {
       "type": "object",
       "properties": {
-        "function": {
-          "$ref": "#/definitions/v1Function"
+        "data": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "v1UploadFunctionSourceMetadata": {
+      "type": "object",
+      "properties": {
+        "functionName": {
+          "type": "string"
+        },
+        "sourceBundleMetadata": {
+          "$ref": "#/definitions/v1SourceBundleMetadata"
+        }
+      }
+    },
+    "v1UploadFunctionSourceResponse": {
+      "type": "object",
+      "properties": {
+        "functionId": {
+          "type": "string"
+        },
+        "objectKey": {
+          "type": "string"
         }
       }
     }

@@ -8,3 +8,7 @@ import (
 func NewUnaryServerInterceptor(opts ...r.Option) grpc.UnaryServerInterceptor {
 	return r.UnaryServerInterceptor(opts...)
 }
+
+func NewStreamServerInterceptor(opts ...r.Option) grpc.StreamServerInterceptor {
+	return r.StreamServerInterceptor(opts...)
+}

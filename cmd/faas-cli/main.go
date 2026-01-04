@@ -5,6 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	funccmd "github.com/10Narratives/faas/cmd/faas-cli/functions"
 	errorutils "github.com/10Narratives/faas/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -19,7 +20,9 @@ func main() {
 		Long:  "Tool for managing serverless functions, operations, and related resources in the FaaS platform.",
 	}
 
-	rootCmd.AddCommand()
+	rootCmd.AddCommand(
+		funccmd.NewFunctionsGroup(),
+	)
 
 	errorutils.Try(rootCmd.ExecuteContext(ctx))
 }

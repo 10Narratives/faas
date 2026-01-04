@@ -35,16 +35,16 @@ var (
 	_ = metadata.Join
 )
 
-func request_FunctionService_UploadFunction_0(ctx context.Context, marshaler runtime.Marshaler, client FunctionServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_FunctionService_UploadFunctionSource_0(ctx context.Context, marshaler runtime.Marshaler, client FunctionServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var metadata runtime.ServerMetadata
-	stream, err := client.UploadFunction(ctx)
+	stream, err := client.UploadFunctionSource(ctx)
 	if err != nil {
 		grpclog.Errorf("Failed to start streaming: %v", err)
 		return nil, metadata, err
 	}
 	dec := marshaler.NewDecoder(req.Body)
 	for {
-		var protoReq UploadFunctionRequest
+		var protoReq UploadFunctionSourceRequest
 		err = dec.Decode(&protoReq)
 		if errors.Is(err, io.EOF) {
 			break
@@ -82,7 +82,7 @@ func request_FunctionService_UploadFunction_0(ctx context.Context, marshaler run
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterFunctionServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterFunctionServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server FunctionServiceServer) error {
-	mux.Handle(http.MethodPost, pattern_FunctionService_UploadFunction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_FunctionService_UploadFunctionSource_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
 		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -128,30 +128,30 @@ func RegisterFunctionServiceHandler(ctx context.Context, mux *runtime.ServeMux, 
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "FunctionServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterFunctionServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client FunctionServiceClient) error {
-	mux.Handle(http.MethodPost, pattern_FunctionService_UploadFunction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_FunctionService_UploadFunctionSource_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/faas.functions.v1.FunctionService/UploadFunction", runtime.WithHTTPPathPattern("/faas.functions.v1.FunctionService/UploadFunction"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/faas.functions.v1.FunctionService/UploadFunctionSource", runtime.WithHTTPPathPattern("/faas.functions.v1.FunctionService/UploadFunctionSource"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_FunctionService_UploadFunction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_FunctionService_UploadFunctionSource_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_FunctionService_UploadFunction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_FunctionService_UploadFunctionSource_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	return nil
 }
 
 var (
-	pattern_FunctionService_UploadFunction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"faas.functions.v1.FunctionService", "UploadFunction"}, ""))
+	pattern_FunctionService_UploadFunctionSource_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"faas.functions.v1.FunctionService", "UploadFunctionSource"}, ""))
 )
 
 var (
-	forward_FunctionService_UploadFunction_0 = runtime.ForwardResponseMessage
+	forward_FunctionService_UploadFunctionSource_0 = runtime.ForwardResponseMessage
 )

@@ -10,16 +10,9 @@ func NewFunctionsGroup() *cobra.Command {
 		Short: "Commands for managing serverless functions",
 	}
 
-	cmd.AddCommand()
-
-	return cmd
-}
-
-func NewUploadFunctionCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "upload",
-		Short: "Upload function",
-	}
+	cmd.AddCommand(
+		NewUploadFunctionCommand(),
+	)
 
 	return cmd
 }
