@@ -1,3 +1,15 @@
 transport:
   grpc:
     address: 0.0.0.0:55055
+
+  task_queue:
+    url: nats://task-queue:4222
+
+databases:
+  statedb:
+    dsn: postgres://postgres:postgres@statedb:5432/statedb?sslmode=disable
+
+  object_storage:
+    endpoint: object-storage:9000
+    access_key: minio_admin
+    secret_key: minio_admin

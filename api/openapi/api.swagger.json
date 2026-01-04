@@ -17,14 +17,6 @@
   ],
   "paths": {},
   "definitions": {
-    "SourceBundleMetadataBundleType": {
-      "type": "string",
-      "enum": [
-        "BUNDLE_TYPE_UNSPECIFIED",
-        "BUNDLE_TYPE_ZIP"
-      ],
-      "default": "BUNDLE_TYPE_UNSPECIFIED"
-    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -57,16 +49,24 @@
       "type": "object",
       "properties": {
         "type": {
-          "$ref": "#/definitions/SourceBundleMetadataBundleType"
+          "$ref": "#/definitions/v1SourceBundleType"
         },
         "fileName": {
           "type": "string"
         },
-        "sizeBytes": {
+        "size": {
           "type": "string",
           "format": "uint64"
         }
       }
+    },
+    "v1SourceBundleType": {
+      "type": "string",
+      "enum": [
+        "SOURCE_BUNDLE_TYPE_UNSPECIFIED",
+        "SOURCE_BUNDLE_TYPE_ZIP"
+      ],
+      "default": "SOURCE_BUNDLE_TYPE_UNSPECIFIED"
     },
     "v1UploadChunk": {
       "type": "object",

@@ -385,7 +385,7 @@ func (m *SourceBundleMetadata) validate(all bool) error {
 
 	// no validation rules for FileName
 
-	// no validation rules for SizeBytes
+	// no validation rules for Size
 
 	if len(errors) > 0 {
 		return SourceBundleMetadataMultiError(errors)
