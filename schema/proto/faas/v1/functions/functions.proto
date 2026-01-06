@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package faas.v1.functions;
+
+option go_package = "github.com/10Narratives/faas/pkg/faas/v1/functions;functionspb";
+
+import "google/longrunning/operations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+
+message Function {
+  option (google.api.resource) = {
+    type: "functions.faas.com/Function"
+    pattern: "functions/{function}"
+    singular: "function"
+    plural: "function"
+  };
+
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
+
+  string display_name = 2;
+
+  google.protobuf.Timestamp uploaded_at = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  SourceBundle source_bundle = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message SourceBundle {
+  string bucket = 1;
+  string object_key = 2;
+  uint64 size = 3;
+  string sha256 = 4;
+}
+
+//
+service Functions {
+  //
+  rpc UploadFunction(stream UploadFunctionRequest) returns (Function);
+
+  //
+  rpc ExecuteFunction(ExecuteFunctionRequest) returns (google.longrunning.Operation) {
+    option (google.longrunning.operation_info) = {
+      response_type: "ExecuteFunctionResponse",
+      metadata_type: "ExecuteFunctionMetadata"
+    };
+  };
+
+  //
+  rpc GetFunction(GetFunctionRequest) returns (Function);
+
+  //
+  rpc ListFunctions(ListFunctionsRequest) returns (ListFunctionsResponse);
+
+  //
+  rpc DeleteFunction(DeleteFunctionRequest) returns (google.protobuf.Empty);
+}
+
+//
+message UploadFunctionRequest {
+  oneof payload {
+    UploadFunctionMetadata upload_function_metadata = 1;
+    UploadFunctionData upload_function_data = 2;
+  }
+}
+
+message UploadFunctionMetadata {
+  string function_name = 1;
+  enum Format {
+    FORMAT_UNSPECIFIED = 0;
+    FORMAT_ZIP = 1;
+    FORMAT_TAR_GZ = 2;
+  }
+}
+
+message UploadFunctionData {
+  bytes data = 1;
+}
+
+message ExecuteFunctionRequest {
+  string name = 1;
+  string parameters = 2;
+}
+
+message ExecuteFunctionResponse {
+  oneof result {
+    bytes inline_result = 1;
+    string object_key = 2;
+  }
+}
+
+message ExecuteFunctionMetadata {
+}
+
+message GetFunctionRequest {
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListFunctionsRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListFunctionsResponse {
+  repeated Function functions = 1;
+  string next_page_token = 2;
+}
+
+message DeleteFunctionRequest {
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+}

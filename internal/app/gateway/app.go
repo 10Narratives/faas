@@ -6,10 +6,9 @@ import (
 
 	grpcsrv "github.com/10Narratives/faas/internal/app/components/grpc/server"
 	natscomp "github.com/10Narratives/faas/internal/app/components/nats"
-	funcsrv "github.com/10Narratives/faas/internal/services/functions"
-	funcapi "github.com/10Narratives/faas/internal/transport/grpc/api/functions"
-	healthapi "github.com/10Narratives/faas/internal/transport/grpc/api/health"
-	reflectapi "github.com/10Narratives/faas/internal/transport/grpc/api/reflect"
+	healthapi "github.com/10Narratives/faas/internal/transport/grpc/dev/health"
+	reflectapi "github.com/10Narratives/faas/internal/transport/grpc/dev/reflect"
+
 	"github.com/10Narratives/faas/internal/transport/grpc/interceptors/logging"
 	"github.com/10Narratives/faas/internal/transport/grpc/interceptors/recovery"
 	"github.com/10Narratives/faas/internal/transport/grpc/interceptors/validator"
@@ -34,11 +33,6 @@ func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
 	}
 	log.Info("connection to unified storage established")
 
-	functionService, err := funcsrv.NewService()
-	if err != nil {
-		return nil, err
-	}
-
 	grpcServer := grpcsrv.NewComponent(cfg.Server.Grpc.Address,
 		grpcsrv.WithServerOptions(
 			grpc.ChainUnaryInterceptor(
@@ -55,7 +49,6 @@ func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
 		grpcsrv.WithServiceRegistration(
 			healthapi.NewRegistration(),
 			reflectapi.NewRegistration(),
-			funcapi.NewRegistration(functionService),
 		),
 	)
 
