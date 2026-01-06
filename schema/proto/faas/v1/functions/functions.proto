@@ -90,7 +90,20 @@ message ExecuteFunctionResponse {
   }
 }
 
+enum ExecutionState {
+  EXECUTION_STATE_UNSPECIFIED = 0;
+  EXECUTION_STATE_PENDING = 1;
+  EXECUTION_STATE_PROCESSING = 2;
+  EXECUTION_STATE_SUCCEEDED = 3;
+  EXECUTION_STATE_FAILED = 4;
+  EXECUTION_STATE_CANCELED = 5;
+}
+
 message ExecuteFunctionMetadata {
+  ExecutionState execution_state = 1;
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp started_at = 3;
+  google.protobuf.Timestamp ended_at = 4;
 }
 
 message GetFunctionRequest {

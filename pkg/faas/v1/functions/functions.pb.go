@@ -25,6 +25,64 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type ExecutionState int32
+
+const (
+	ExecutionState_EXECUTION_STATE_UNSPECIFIED ExecutionState = 0
+	ExecutionState_EXECUTION_STATE_PENDING     ExecutionState = 1
+	ExecutionState_EXECUTION_STATE_PROCESSING  ExecutionState = 2
+	ExecutionState_EXECUTION_STATE_SUCCEEDED   ExecutionState = 3
+	ExecutionState_EXECUTION_STATE_FAILED      ExecutionState = 4
+	ExecutionState_EXECUTION_STATE_CANCELED    ExecutionState = 5
+)
+
+// Enum value maps for ExecutionState.
+var (
+	ExecutionState_name = map[int32]string{
+		0: "EXECUTION_STATE_UNSPECIFIED",
+		1: "EXECUTION_STATE_PENDING",
+		2: "EXECUTION_STATE_PROCESSING",
+		3: "EXECUTION_STATE_SUCCEEDED",
+		4: "EXECUTION_STATE_FAILED",
+		5: "EXECUTION_STATE_CANCELED",
+	}
+	ExecutionState_value = map[string]int32{
+		"EXECUTION_STATE_UNSPECIFIED": 0,
+		"EXECUTION_STATE_PENDING":     1,
+		"EXECUTION_STATE_PROCESSING":  2,
+		"EXECUTION_STATE_SUCCEEDED":   3,
+		"EXECUTION_STATE_FAILED":      4,
+		"EXECUTION_STATE_CANCELED":    5,
+	}
+)
+
+func (x ExecutionState) Enum() *ExecutionState {
+	p := new(ExecutionState)
+	*p = x
+	return p
+}
+
+func (x ExecutionState) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ExecutionState) Descriptor() protoreflect.EnumDescriptor {
+	return file_faas_v1_functions_functions_proto_enumTypes[0].Descriptor()
+}
+
+func (ExecutionState) Type() protoreflect.EnumType {
+	return &file_faas_v1_functions_functions_proto_enumTypes[0]
+}
+
+func (x ExecutionState) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ExecutionState.Descriptor instead.
+func (ExecutionState) EnumDescriptor() ([]byte, []int) {
+	return file_faas_v1_functions_functions_proto_rawDescGZIP(), []int{0}
+}
+
 type UploadFunctionMetadata_Format int32
 
 const (
@@ -58,11 +116,11 @@ func (x UploadFunctionMetadata_Format) String() string {
 }
 
 func (UploadFunctionMetadata_Format) Descriptor() protoreflect.EnumDescriptor {
-	return file_faas_v1_functions_functions_proto_enumTypes[0].Descriptor()
+	return file_faas_v1_functions_functions_proto_enumTypes[1].Descriptor()
 }
 
 func (UploadFunctionMetadata_Format) Type() protoreflect.EnumType {
-	return &file_faas_v1_functions_functions_proto_enumTypes[0]
+	return &file_faas_v1_functions_functions_proto_enumTypes[1]
 }
 
 func (x UploadFunctionMetadata_Format) Number() protoreflect.EnumNumber {
@@ -515,9 +573,13 @@ func (*ExecuteFunctionResponse_InlineResult) isExecuteFunctionResponse_Result() 
 func (*ExecuteFunctionResponse_ObjectKey) isExecuteFunctionResponse_Result() {}
 
 type ExecuteFunctionMetadata struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ExecutionState ExecutionState         `protobuf:"varint,1,opt,name=execution_state,json=executionState,proto3,enum=faas.v1.functions.ExecutionState" json:"execution_state,omitempty"`
+	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	StartedAt      *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	EndedAt        *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=ended_at,json=endedAt,proto3" json:"ended_at,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ExecuteFunctionMetadata) Reset() {
@@ -548,6 +610,34 @@ func (x *ExecuteFunctionMetadata) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ExecuteFunctionMetadata.ProtoReflect.Descriptor instead.
 func (*ExecuteFunctionMetadata) Descriptor() ([]byte, []int) {
 	return file_faas_v1_functions_functions_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ExecuteFunctionMetadata) GetExecutionState() ExecutionState {
+	if x != nil {
+		return x.ExecutionState
+	}
+	return ExecutionState_EXECUTION_STATE_UNSPECIFIED
+}
+
+func (x *ExecuteFunctionMetadata) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *ExecuteFunctionMetadata) GetStartedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartedAt
+	}
+	return nil
+}
+
+func (x *ExecuteFunctionMetadata) GetEndedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EndedAt
+	}
+	return nil
 }
 
 type GetFunctionRequest struct {
@@ -782,8 +872,14 @@ const file_faas_v1_functions_functions_proto_rawDesc = "" +
 	"\rinline_result\x18\x01 \x01(\fH\x00R\finlineResult\x12\x1f\n" +
 	"\n" +
 	"object_key\x18\x02 \x01(\tH\x00R\tobjectKeyB\b\n" +
-	"\x06result\"\x19\n" +
-	"\x17ExecuteFunctionMetadata\"-\n" +
+	"\x06result\"\x92\x02\n" +
+	"\x17ExecuteFunctionMetadata\x12J\n" +
+	"\x0fexecution_state\x18\x01 \x01(\x0e2!.faas.v1.functions.ExecutionStateR\x0eexecutionState\x129\n" +
+	"\n" +
+	"created_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"started_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x125\n" +
+	"\bended_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendedAt\"-\n" +
 	"\x12GetFunctionRequest\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x02R\x04name\"R\n" +
 	"\x14ListFunctionsRequest\x12\x1b\n" +
@@ -794,7 +890,14 @@ const file_faas_v1_functions_functions_proto_rawDesc = "" +
 	"\tfunctions\x18\x01 \x03(\v2\x1b.faas.v1.functions.FunctionR\tfunctions\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"0\n" +
 	"\x15DeleteFunctionRequest\x12\x17\n" +
-	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x02R\x04name2\x86\x04\n" +
+	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x02R\x04name*\xc7\x01\n" +
+	"\x0eExecutionState\x12\x1f\n" +
+	"\x1bEXECUTION_STATE_UNSPECIFIED\x10\x00\x12\x1b\n" +
+	"\x17EXECUTION_STATE_PENDING\x10\x01\x12\x1e\n" +
+	"\x1aEXECUTION_STATE_PROCESSING\x10\x02\x12\x1d\n" +
+	"\x19EXECUTION_STATE_SUCCEEDED\x10\x03\x12\x1a\n" +
+	"\x16EXECUTION_STATE_FAILED\x10\x04\x12\x1c\n" +
+	"\x18EXECUTION_STATE_CANCELED\x10\x052\x86\x04\n" +
 	"\tFunctions\x12Y\n" +
 	"\x0eUploadFunction\x12(.faas.v1.functions.UploadFunctionRequest\x1a\x1b.faas.v1.functions.Function(\x01\x12\x92\x01\n" +
 	"\x0fExecuteFunction\x12).faas.v1.functions.ExecuteFunctionRequest\x1a\x1d.google.longrunning.Operation\"5\xcaA2\n" +
@@ -815,47 +918,52 @@ func file_faas_v1_functions_functions_proto_rawDescGZIP() []byte {
 	return file_faas_v1_functions_functions_proto_rawDescData
 }
 
-var file_faas_v1_functions_functions_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_faas_v1_functions_functions_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_faas_v1_functions_functions_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_faas_v1_functions_functions_proto_goTypes = []any{
-	(UploadFunctionMetadata_Format)(0), // 0: faas.v1.functions.UploadFunctionMetadata.Format
-	(*Function)(nil),                   // 1: faas.v1.functions.Function
-	(*SourceBundle)(nil),               // 2: faas.v1.functions.SourceBundle
-	(*UploadFunctionRequest)(nil),      // 3: faas.v1.functions.UploadFunctionRequest
-	(*UploadFunctionMetadata)(nil),     // 4: faas.v1.functions.UploadFunctionMetadata
-	(*UploadFunctionData)(nil),         // 5: faas.v1.functions.UploadFunctionData
-	(*ExecuteFunctionRequest)(nil),     // 6: faas.v1.functions.ExecuteFunctionRequest
-	(*ExecuteFunctionResponse)(nil),    // 7: faas.v1.functions.ExecuteFunctionResponse
-	(*ExecuteFunctionMetadata)(nil),    // 8: faas.v1.functions.ExecuteFunctionMetadata
-	(*GetFunctionRequest)(nil),         // 9: faas.v1.functions.GetFunctionRequest
-	(*ListFunctionsRequest)(nil),       // 10: faas.v1.functions.ListFunctionsRequest
-	(*ListFunctionsResponse)(nil),      // 11: faas.v1.functions.ListFunctionsResponse
-	(*DeleteFunctionRequest)(nil),      // 12: faas.v1.functions.DeleteFunctionRequest
-	(*timestamppb.Timestamp)(nil),      // 13: google.protobuf.Timestamp
-	(*longrunningpb.Operation)(nil),    // 14: google.longrunning.Operation
-	(*emptypb.Empty)(nil),              // 15: google.protobuf.Empty
+	(ExecutionState)(0),                // 0: faas.v1.functions.ExecutionState
+	(UploadFunctionMetadata_Format)(0), // 1: faas.v1.functions.UploadFunctionMetadata.Format
+	(*Function)(nil),                   // 2: faas.v1.functions.Function
+	(*SourceBundle)(nil),               // 3: faas.v1.functions.SourceBundle
+	(*UploadFunctionRequest)(nil),      // 4: faas.v1.functions.UploadFunctionRequest
+	(*UploadFunctionMetadata)(nil),     // 5: faas.v1.functions.UploadFunctionMetadata
+	(*UploadFunctionData)(nil),         // 6: faas.v1.functions.UploadFunctionData
+	(*ExecuteFunctionRequest)(nil),     // 7: faas.v1.functions.ExecuteFunctionRequest
+	(*ExecuteFunctionResponse)(nil),    // 8: faas.v1.functions.ExecuteFunctionResponse
+	(*ExecuteFunctionMetadata)(nil),    // 9: faas.v1.functions.ExecuteFunctionMetadata
+	(*GetFunctionRequest)(nil),         // 10: faas.v1.functions.GetFunctionRequest
+	(*ListFunctionsRequest)(nil),       // 11: faas.v1.functions.ListFunctionsRequest
+	(*ListFunctionsResponse)(nil),      // 12: faas.v1.functions.ListFunctionsResponse
+	(*DeleteFunctionRequest)(nil),      // 13: faas.v1.functions.DeleteFunctionRequest
+	(*timestamppb.Timestamp)(nil),      // 14: google.protobuf.Timestamp
+	(*longrunningpb.Operation)(nil),    // 15: google.longrunning.Operation
+	(*emptypb.Empty)(nil),              // 16: google.protobuf.Empty
 }
 var file_faas_v1_functions_functions_proto_depIdxs = []int32{
-	13, // 0: faas.v1.functions.Function.uploaded_at:type_name -> google.protobuf.Timestamp
-	2,  // 1: faas.v1.functions.Function.source_bundle:type_name -> faas.v1.functions.SourceBundle
-	4,  // 2: faas.v1.functions.UploadFunctionRequest.upload_function_metadata:type_name -> faas.v1.functions.UploadFunctionMetadata
-	5,  // 3: faas.v1.functions.UploadFunctionRequest.upload_function_data:type_name -> faas.v1.functions.UploadFunctionData
-	1,  // 4: faas.v1.functions.ListFunctionsResponse.functions:type_name -> faas.v1.functions.Function
-	3,  // 5: faas.v1.functions.Functions.UploadFunction:input_type -> faas.v1.functions.UploadFunctionRequest
-	6,  // 6: faas.v1.functions.Functions.ExecuteFunction:input_type -> faas.v1.functions.ExecuteFunctionRequest
-	9,  // 7: faas.v1.functions.Functions.GetFunction:input_type -> faas.v1.functions.GetFunctionRequest
-	10, // 8: faas.v1.functions.Functions.ListFunctions:input_type -> faas.v1.functions.ListFunctionsRequest
-	12, // 9: faas.v1.functions.Functions.DeleteFunction:input_type -> faas.v1.functions.DeleteFunctionRequest
-	1,  // 10: faas.v1.functions.Functions.UploadFunction:output_type -> faas.v1.functions.Function
-	14, // 11: faas.v1.functions.Functions.ExecuteFunction:output_type -> google.longrunning.Operation
-	1,  // 12: faas.v1.functions.Functions.GetFunction:output_type -> faas.v1.functions.Function
-	11, // 13: faas.v1.functions.Functions.ListFunctions:output_type -> faas.v1.functions.ListFunctionsResponse
-	15, // 14: faas.v1.functions.Functions.DeleteFunction:output_type -> google.protobuf.Empty
-	10, // [10:15] is the sub-list for method output_type
-	5,  // [5:10] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	14, // 0: faas.v1.functions.Function.uploaded_at:type_name -> google.protobuf.Timestamp
+	3,  // 1: faas.v1.functions.Function.source_bundle:type_name -> faas.v1.functions.SourceBundle
+	5,  // 2: faas.v1.functions.UploadFunctionRequest.upload_function_metadata:type_name -> faas.v1.functions.UploadFunctionMetadata
+	6,  // 3: faas.v1.functions.UploadFunctionRequest.upload_function_data:type_name -> faas.v1.functions.UploadFunctionData
+	0,  // 4: faas.v1.functions.ExecuteFunctionMetadata.execution_state:type_name -> faas.v1.functions.ExecutionState
+	14, // 5: faas.v1.functions.ExecuteFunctionMetadata.created_at:type_name -> google.protobuf.Timestamp
+	14, // 6: faas.v1.functions.ExecuteFunctionMetadata.started_at:type_name -> google.protobuf.Timestamp
+	14, // 7: faas.v1.functions.ExecuteFunctionMetadata.ended_at:type_name -> google.protobuf.Timestamp
+	2,  // 8: faas.v1.functions.ListFunctionsResponse.functions:type_name -> faas.v1.functions.Function
+	4,  // 9: faas.v1.functions.Functions.UploadFunction:input_type -> faas.v1.functions.UploadFunctionRequest
+	7,  // 10: faas.v1.functions.Functions.ExecuteFunction:input_type -> faas.v1.functions.ExecuteFunctionRequest
+	10, // 11: faas.v1.functions.Functions.GetFunction:input_type -> faas.v1.functions.GetFunctionRequest
+	11, // 12: faas.v1.functions.Functions.ListFunctions:input_type -> faas.v1.functions.ListFunctionsRequest
+	13, // 13: faas.v1.functions.Functions.DeleteFunction:input_type -> faas.v1.functions.DeleteFunctionRequest
+	2,  // 14: faas.v1.functions.Functions.UploadFunction:output_type -> faas.v1.functions.Function
+	15, // 15: faas.v1.functions.Functions.ExecuteFunction:output_type -> google.longrunning.Operation
+	2,  // 16: faas.v1.functions.Functions.GetFunction:output_type -> faas.v1.functions.Function
+	12, // 17: faas.v1.functions.Functions.ListFunctions:output_type -> faas.v1.functions.ListFunctionsResponse
+	16, // 18: faas.v1.functions.Functions.DeleteFunction:output_type -> google.protobuf.Empty
+	14, // [14:19] is the sub-list for method output_type
+	9,  // [9:14] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_faas_v1_functions_functions_proto_init() }
@@ -876,7 +984,7 @@ func file_faas_v1_functions_functions_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_faas_v1_functions_functions_proto_rawDesc), len(file_faas_v1_functions_functions_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      2,
 			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
