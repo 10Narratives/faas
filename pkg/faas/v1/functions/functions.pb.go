@@ -351,8 +351,9 @@ func (*UploadFunctionRequest_UploadFunctionMetadata) isUploadFunctionRequest_Pay
 func (*UploadFunctionRequest_UploadFunctionData) isUploadFunctionRequest_Payload() {}
 
 type UploadFunctionMetadata struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FunctionName  string                 `protobuf:"bytes,1,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"`
+	state         protoimpl.MessageState        `protogen:"open.v1"`
+	FunctionName  string                        `protobuf:"bytes,1,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"`
+	Format        UploadFunctionMetadata_Format `protobuf:"varint,3,opt,name=format,proto3,enum=faas.v1.functions.UploadFunctionMetadata_Format" json:"format,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -392,6 +393,13 @@ func (x *UploadFunctionMetadata) GetFunctionName() string {
 		return x.FunctionName
 	}
 	return ""
+}
+
+func (x *UploadFunctionMetadata) GetFormat() UploadFunctionMetadata_Format {
+	if x != nil {
+		return x.Format
+	}
+	return UploadFunctionMetadata_FORMAT_UNSPECIFIED
 }
 
 type UploadFunctionData struct {
@@ -853,9 +861,10 @@ const file_faas_v1_functions_functions_proto_rawDesc = "" +
 	"\x15UploadFunctionRequest\x12e\n" +
 	"\x18upload_function_metadata\x18\x01 \x01(\v2).faas.v1.functions.UploadFunctionMetadataH\x00R\x16uploadFunctionMetadata\x12Y\n" +
 	"\x14upload_function_data\x18\x02 \x01(\v2%.faas.v1.functions.UploadFunctionDataH\x00R\x12uploadFunctionDataB\t\n" +
-	"\apayload\"\x82\x01\n" +
+	"\apayload\"\xcc\x01\n" +
 	"\x16UploadFunctionMetadata\x12#\n" +
-	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\"C\n" +
+	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\x12H\n" +
+	"\x06format\x18\x03 \x01(\x0e20.faas.v1.functions.UploadFunctionMetadata.FormatR\x06format\"C\n" +
 	"\x06Format\x12\x16\n" +
 	"\x12FORMAT_UNSPECIFIED\x10\x00\x12\x0e\n" +
 	"\n" +
@@ -944,26 +953,27 @@ var file_faas_v1_functions_functions_proto_depIdxs = []int32{
 	3,  // 1: faas.v1.functions.Function.source_bundle:type_name -> faas.v1.functions.SourceBundle
 	5,  // 2: faas.v1.functions.UploadFunctionRequest.upload_function_metadata:type_name -> faas.v1.functions.UploadFunctionMetadata
 	6,  // 3: faas.v1.functions.UploadFunctionRequest.upload_function_data:type_name -> faas.v1.functions.UploadFunctionData
-	0,  // 4: faas.v1.functions.ExecuteFunctionMetadata.execution_state:type_name -> faas.v1.functions.ExecutionState
-	14, // 5: faas.v1.functions.ExecuteFunctionMetadata.created_at:type_name -> google.protobuf.Timestamp
-	14, // 6: faas.v1.functions.ExecuteFunctionMetadata.started_at:type_name -> google.protobuf.Timestamp
-	14, // 7: faas.v1.functions.ExecuteFunctionMetadata.ended_at:type_name -> google.protobuf.Timestamp
-	2,  // 8: faas.v1.functions.ListFunctionsResponse.functions:type_name -> faas.v1.functions.Function
-	4,  // 9: faas.v1.functions.Functions.UploadFunction:input_type -> faas.v1.functions.UploadFunctionRequest
-	7,  // 10: faas.v1.functions.Functions.ExecuteFunction:input_type -> faas.v1.functions.ExecuteFunctionRequest
-	10, // 11: faas.v1.functions.Functions.GetFunction:input_type -> faas.v1.functions.GetFunctionRequest
-	11, // 12: faas.v1.functions.Functions.ListFunctions:input_type -> faas.v1.functions.ListFunctionsRequest
-	13, // 13: faas.v1.functions.Functions.DeleteFunction:input_type -> faas.v1.functions.DeleteFunctionRequest
-	2,  // 14: faas.v1.functions.Functions.UploadFunction:output_type -> faas.v1.functions.Function
-	15, // 15: faas.v1.functions.Functions.ExecuteFunction:output_type -> google.longrunning.Operation
-	2,  // 16: faas.v1.functions.Functions.GetFunction:output_type -> faas.v1.functions.Function
-	12, // 17: faas.v1.functions.Functions.ListFunctions:output_type -> faas.v1.functions.ListFunctionsResponse
-	16, // 18: faas.v1.functions.Functions.DeleteFunction:output_type -> google.protobuf.Empty
-	14, // [14:19] is the sub-list for method output_type
-	9,  // [9:14] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	1,  // 4: faas.v1.functions.UploadFunctionMetadata.format:type_name -> faas.v1.functions.UploadFunctionMetadata.Format
+	0,  // 5: faas.v1.functions.ExecuteFunctionMetadata.execution_state:type_name -> faas.v1.functions.ExecutionState
+	14, // 6: faas.v1.functions.ExecuteFunctionMetadata.created_at:type_name -> google.protobuf.Timestamp
+	14, // 7: faas.v1.functions.ExecuteFunctionMetadata.started_at:type_name -> google.protobuf.Timestamp
+	14, // 8: faas.v1.functions.ExecuteFunctionMetadata.ended_at:type_name -> google.protobuf.Timestamp
+	2,  // 9: faas.v1.functions.ListFunctionsResponse.functions:type_name -> faas.v1.functions.Function
+	4,  // 10: faas.v1.functions.Functions.UploadFunction:input_type -> faas.v1.functions.UploadFunctionRequest
+	7,  // 11: faas.v1.functions.Functions.ExecuteFunction:input_type -> faas.v1.functions.ExecuteFunctionRequest
+	10, // 12: faas.v1.functions.Functions.GetFunction:input_type -> faas.v1.functions.GetFunctionRequest
+	11, // 13: faas.v1.functions.Functions.ListFunctions:input_type -> faas.v1.functions.ListFunctionsRequest
+	13, // 14: faas.v1.functions.Functions.DeleteFunction:input_type -> faas.v1.functions.DeleteFunctionRequest
+	2,  // 15: faas.v1.functions.Functions.UploadFunction:output_type -> faas.v1.functions.Function
+	15, // 16: faas.v1.functions.Functions.ExecuteFunction:output_type -> google.longrunning.Operation
+	2,  // 17: faas.v1.functions.Functions.GetFunction:output_type -> faas.v1.functions.Function
+	12, // 18: faas.v1.functions.Functions.ListFunctions:output_type -> faas.v1.functions.ListFunctionsResponse
+	16, // 19: faas.v1.functions.Functions.DeleteFunction:output_type -> google.protobuf.Empty
+	15, // [15:20] is the sub-list for method output_type
+	10, // [10:15] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_faas_v1_functions_functions_proto_init() }

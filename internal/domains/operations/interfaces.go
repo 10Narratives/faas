@@ -3,6 +3,8 @@ package opdomain
 import (
 	"context"
 	"time"
+
+	longrunning "cloud.google.com/go/longrunning/autogen/longrunningpb"
 )
 
 type OperationGetter interface {
@@ -14,7 +16,25 @@ type GetOperationArgs struct {
 }
 
 type GetOperationResult struct {
-	Operation *Operation
+	Operation *longrunning.Operation
+}
+
+type OperationLister interface {
+	ListOperations(ctx context.Context, args *ListOperationsArgs) (*ListOperationsResult, error)
+}
+
+type ListOperationsArgs struct {
+	Name                 string
+	Filter               string
+	PageSize             int32
+	PageToken            string
+	ReturnPartialSuccess bool
+}
+
+type ListOperationsResult struct {
+	Operations    []*longrunning.Operation
+	NextPageToken string
+	Unreachable   []string
 }
 
 type OperationCanceler interface {
@@ -43,5 +63,5 @@ type WaitOperationArgs struct {
 }
 
 type WaitOperationResult struct {
-	Operation *Operation
+	Operation *longrunning.Operation
 }

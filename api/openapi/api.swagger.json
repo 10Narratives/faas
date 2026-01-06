@@ -17,6 +17,15 @@
   ],
   "paths": {},
   "definitions": {
+    "UploadFunctionMetadataFormat": {
+      "type": "string",
+      "enum": [
+        "FORMAT_UNSPECIFIED",
+        "FORMAT_ZIP",
+        "FORMAT_TAR_GZ"
+      ],
+      "default": "FORMAT_UNSPECIFIED"
+    },
     "functionsFunction": {
       "type": "object",
       "properties": {
@@ -84,6 +93,9 @@
       "properties": {
         "functionName": {
           "type": "string"
+        },
+        "format": {
+          "$ref": "#/definitions/UploadFunctionMetadataFormat"
         }
       }
     },

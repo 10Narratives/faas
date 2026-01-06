@@ -516,6 +516,8 @@ func (m *UploadFunctionMetadata) validate(all bool) error {
 
 	// no validation rules for FunctionName
 
+	// no validation rules for Format
+
 	if len(errors) > 0 {
 		return UploadFunctionMetadataMultiError(errors)
 	}

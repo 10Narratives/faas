@@ -19,24 +19,3 @@ func containsOperationsSegment(s string) bool {
 	}
 	return false
 }
-
-type Any struct {
-	TypeURL string
-	Value   []byte
-}
-
-type Status struct {
-	Code    int32
-	Message string
-	Details []*Any
-}
-
-type Operation struct {
-	Name OperationName
-
-	Done bool
-
-	Metadata *Any
-	Response *Any
-	Error    *Status
-}

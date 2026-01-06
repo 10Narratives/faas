@@ -72,6 +72,7 @@ message UploadFunctionMetadata {
     FORMAT_ZIP = 1;
     FORMAT_TAR_GZ = 2;
   }
+  Format format = 3;
 }
 
 message UploadFunctionData {

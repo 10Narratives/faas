@@ -6,6 +6,8 @@ import (
 
 	grpcsrv "github.com/10Narratives/faas/internal/app/components/grpc/server"
 	natscomp "github.com/10Narratives/faas/internal/app/components/nats"
+	funcapi "github.com/10Narratives/faas/internal/transport/grpc/api/functions"
+	opapi "github.com/10Narratives/faas/internal/transport/grpc/api/operations"
 	healthapi "github.com/10Narratives/faas/internal/transport/grpc/dev/health"
 	reflectapi "github.com/10Narratives/faas/internal/transport/grpc/dev/reflect"
 
@@ -49,6 +51,8 @@ func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
 		grpcsrv.WithServiceRegistration(
 			healthapi.NewRegistration(),
 			reflectapi.NewRegistration(),
+			opapi.NewRegistration(nil),
+			funcapi.NewRegistration(nil),
 		),
 	)
 
