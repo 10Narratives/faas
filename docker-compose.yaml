@@ -39,6 +39,7 @@ services:
       -m 8222
     volumes:
       - unified-storage-data:/data
+      - ./configs/unified-storage.example.conf:/etc/nats/nats-server.conf:ro
     restart: unless-stopped
 
   unified-storage-health:

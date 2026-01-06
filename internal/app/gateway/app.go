@@ -6,6 +6,8 @@ import (
 
 	grpcsrv "github.com/10Narratives/faas/internal/app/components/grpc/server"
 	natscomp "github.com/10Narratives/faas/internal/app/components/nats"
+	funcrepo "github.com/10Narratives/faas/internal/repositories/functions"
+	funcsrv "github.com/10Narratives/faas/internal/services/functions"
 	funcapi "github.com/10Narratives/faas/internal/transport/grpc/api/functions"
 	opapi "github.com/10Narratives/faas/internal/transport/grpc/api/operations"
 	healthapi "github.com/10Narratives/faas/internal/transport/grpc/dev/health"
@@ -15,6 +17,7 @@ import (
 	"github.com/10Narratives/faas/internal/transport/grpc/interceptors/recovery"
 	"github.com/10Narratives/faas/internal/transport/grpc/interceptors/validator"
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -35,6 +38,23 @@ func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
 	}
 	log.Info("connection to unified storage established")
 
+	js, err := jetstream.New(unifiedStorage)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create jet stream: %w", err)
+	}
+
+	funcMetaRepo, err := funcrepo.NewMetadataRepository(context.Background(), js, "functions-meta")
+	if err != nil {
+		return nil, fmt.Errorf("cannot create functions meta repo: %w", err)
+	}
+
+	funcObjRepo, err := funcrepo.NewObjectRepository(context.Background(), js, "functions")
+	if err != nil {
+		return nil, fmt.Errorf("cannot create functions object repo: %w", err)
+	}
+
+	funcService := funcsrv.NewService(funcMetaRepo, funcObjRepo, nil)
+
 	grpcServer := grpcsrv.NewComponent(cfg.Server.Grpc.Address,
 		grpcsrv.WithServerOptions(
 			grpc.ChainUnaryInterceptor(
@@ -52,7 +72,7 @@ func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
 			healthapi.NewRegistration(),
 			reflectapi.NewRegistration(),
 			opapi.NewRegistration(nil),
-			funcapi.NewRegistration(nil),
+			funcapi.NewRegistration(funcService),
 		),
 	)
 

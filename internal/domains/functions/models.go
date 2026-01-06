@@ -36,5 +36,5 @@ type Function struct {
 	Name        FunctionName
 	DisplayName string
 	UploadedAt  time.Time
-	Bundle      SourceBundle
+	Bundle      *SourceBundle
 }

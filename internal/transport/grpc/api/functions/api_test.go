@@ -184,7 +184,7 @@ func TestUploadFunction_Success_StreamsBodyToDomain(t *testing.T) {
 		Name:        funcdomain.FunctionName("functions/foo"),
 		DisplayName: "Foo",
 		UploadedAt:  uploadedAt,
-		Bundle: funcdomain.SourceBundle{
+		Bundle: &funcdomain.SourceBundle{
 			Bucket:    "bucket-1",
 			ObjectKey: "obj-1",
 			Size:      11,
@@ -344,7 +344,7 @@ func TestListFunctions_SkipsNil(t *testing.T) {
 		Name:        funcdomain.FunctionName("functions/a"),
 		DisplayName: "A",
 		UploadedAt:  time.Now(),
-		Bundle:      funcdomain.SourceBundle{Bucket: "b", ObjectKey: "k"},
+		Bundle:      &funcdomain.SourceBundle{Bucket: "b", ObjectKey: "k"},
 	}
 
 	svc.EXPECT().
