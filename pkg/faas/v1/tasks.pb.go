@@ -82,20 +82,15 @@ func (TaskState) EnumDescriptor() ([]byte, []int) {
 }
 
 type Task struct {
-	state      protoimpl.MessageState `protogen:"open.v1"`
-	Name       string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Function   string                 `protobuf:"bytes,2,opt,name=function,proto3" json:"function,omitempty"`
-	Parameters string                 `protobuf:"bytes,3,opt,name=parameters,proto3" json:"parameters,omitempty"`
-	State      TaskState              `protobuf:"varint,4,opt,name=state,proto3,enum=faas.v1.TaskState" json:"state,omitempty"`
-	CreatedAt  *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	StartedAt  *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
-	EndedAt    *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=ended_at,json=endedAt,proto3" json:"ended_at,omitempty"`
-	// Types that are valid to be assigned to Result:
-	//
-	//	*Task_InlineResult
-	//	*Task_ObjectKey
-	Result        isTask_Result `protobuf_oneof:"result"`
-	ErrorMessage  string        `protobuf:"bytes,12,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Function      string                 `protobuf:"bytes,2,opt,name=function,proto3" json:"function,omitempty"`
+	Parameters    string                 `protobuf:"bytes,3,opt,name=parameters,proto3" json:"parameters,omitempty"`
+	State         TaskState              `protobuf:"varint,4,opt,name=state,proto3,enum=faas.v1.TaskState" json:"state,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	StartedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	EndedAt       *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=ended_at,json=endedAt,proto3" json:"ended_at,omitempty"`
+	Result        *TaskResult            `protobuf:"bytes,8,opt,name=result,proto3" json:"result,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -179,63 +174,121 @@ func (x *Task) GetEndedAt() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *Task) GetResult() isTask_Result {
+func (x *Task) GetResult() *TaskResult {
 	if x != nil {
 		return x.Result
 	}
 	return nil
 }
 
-func (x *Task) GetInlineResult() []byte {
+type TaskResult struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Data:
+	//
+	//	*TaskResult_InlineResult
+	//	*TaskResult_ObjectKey
+	//	*TaskResult_ErrorMessage
+	Data          isTaskResult_Data `protobuf_oneof:"data"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TaskResult) Reset() {
+	*x = TaskResult{}
+	mi := &file_faas_v1_tasks_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TaskResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TaskResult) ProtoMessage() {}
+
+func (x *TaskResult) ProtoReflect() protoreflect.Message {
+	mi := &file_faas_v1_tasks_proto_msgTypes[1]
 	if x != nil {
-		if x, ok := x.Result.(*Task_InlineResult); ok {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TaskResult.ProtoReflect.Descriptor instead.
+func (*TaskResult) Descriptor() ([]byte, []int) {
+	return file_faas_v1_tasks_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *TaskResult) GetData() isTaskResult_Data {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+func (x *TaskResult) GetInlineResult() []byte {
+	if x != nil {
+		if x, ok := x.Data.(*TaskResult_InlineResult); ok {
 			return x.InlineResult
 		}
 	}
 	return nil
 }
 
-func (x *Task) GetObjectKey() string {
+func (x *TaskResult) GetObjectKey() string {
 	if x != nil {
-		if x, ok := x.Result.(*Task_ObjectKey); ok {
+		if x, ok := x.Data.(*TaskResult_ObjectKey); ok {
 			return x.ObjectKey
 		}
 	}
 	return ""
 }
 
-func (x *Task) GetErrorMessage() string {
+func (x *TaskResult) GetErrorMessage() string {
 	if x != nil {
-		return x.ErrorMessage
+		if x, ok := x.Data.(*TaskResult_ErrorMessage); ok {
+			return x.ErrorMessage
+		}
 	}
 	return ""
 }
 
-type isTask_Result interface {
-	isTask_Result()
+type isTaskResult_Data interface {
+	isTaskResult_Data()
 }
 
-type Task_InlineResult struct {
-	InlineResult []byte `protobuf:"bytes,10,opt,name=inline_result,json=inlineResult,proto3,oneof"`
+type TaskResult_InlineResult struct {
+	InlineResult []byte `protobuf:"bytes,1,opt,name=inline_result,json=inlineResult,proto3,oneof"`
 }
 
-type Task_ObjectKey struct {
-	ObjectKey string `protobuf:"bytes,11,opt,name=object_key,json=objectKey,proto3,oneof"`
+type TaskResult_ObjectKey struct {
+	ObjectKey string `protobuf:"bytes,2,opt,name=object_key,json=objectKey,proto3,oneof"`
 }
 
-func (*Task_InlineResult) isTask_Result() {}
+type TaskResult_ErrorMessage struct {
+	ErrorMessage string `protobuf:"bytes,3,opt,name=error_message,json=errorMessage,proto3,oneof"`
+}
 
-func (*Task_ObjectKey) isTask_Result() {}
+func (*TaskResult_InlineResult) isTaskResult_Data() {}
+
+func (*TaskResult_ObjectKey) isTaskResult_Data() {}
+
+func (*TaskResult_ErrorMessage) isTaskResult_Data() {}
 
 type GetTaskRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetTaskRequest) Reset() {
 	*x = GetTaskRequest{}
-	mi := &file_faas_v1_tasks_proto_msgTypes[1]
+	mi := &file_faas_v1_tasks_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -247,7 +300,7 @@ func (x *GetTaskRequest) String() string {
 func (*GetTaskRequest) ProtoMessage() {}
 
 func (x *GetTaskRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_faas_v1_tasks_proto_msgTypes[1]
+	mi := &file_faas_v1_tasks_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -260,7 +313,14 @@ func (x *GetTaskRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTaskRequest.ProtoReflect.Descriptor instead.
 func (*GetTaskRequest) Descriptor() ([]byte, []int) {
-	return file_faas_v1_tasks_proto_rawDescGZIP(), []int{1}
+	return file_faas_v1_tasks_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *GetTaskRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
 }
 
 type ListTasksRequest struct {
@@ -273,7 +333,7 @@ type ListTasksRequest struct {
 
 func (x *ListTasksRequest) Reset() {
 	*x = ListTasksRequest{}
-	mi := &file_faas_v1_tasks_proto_msgTypes[2]
+	mi := &file_faas_v1_tasks_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -285,7 +345,7 @@ func (x *ListTasksRequest) String() string {
 func (*ListTasksRequest) ProtoMessage() {}
 
 func (x *ListTasksRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_faas_v1_tasks_proto_msgTypes[2]
+	mi := &file_faas_v1_tasks_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -298,7 +358,7 @@ func (x *ListTasksRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTasksRequest.ProtoReflect.Descriptor instead.
 func (*ListTasksRequest) Descriptor() ([]byte, []int) {
-	return file_faas_v1_tasks_proto_rawDescGZIP(), []int{2}
+	return file_faas_v1_tasks_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ListTasksRequest) GetPageSize() int32 {
@@ -325,7 +385,7 @@ type ListTasksResponse struct {
 
 func (x *ListTasksResponse) Reset() {
 	*x = ListTasksResponse{}
-	mi := &file_faas_v1_tasks_proto_msgTypes[3]
+	mi := &file_faas_v1_tasks_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -337,7 +397,7 @@ func (x *ListTasksResponse) String() string {
 func (*ListTasksResponse) ProtoMessage() {}
 
 func (x *ListTasksResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_faas_v1_tasks_proto_msgTypes[3]
+	mi := &file_faas_v1_tasks_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -350,7 +410,7 @@ func (x *ListTasksResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTasksResponse.ProtoReflect.Descriptor instead.
 func (*ListTasksResponse) Descriptor() ([]byte, []int) {
-	return file_faas_v1_tasks_proto_rawDescGZIP(), []int{3}
+	return file_faas_v1_tasks_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ListTasksResponse) GetTasks() []*Task {
@@ -369,13 +429,14 @@ func (x *ListTasksResponse) GetNextPageToken() string {
 
 type DeleteTaskRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DeleteTaskRequest) Reset() {
 	*x = DeleteTaskRequest{}
-	mi := &file_faas_v1_tasks_proto_msgTypes[4]
+	mi := &file_faas_v1_tasks_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -387,7 +448,7 @@ func (x *DeleteTaskRequest) String() string {
 func (*DeleteTaskRequest) ProtoMessage() {}
 
 func (x *DeleteTaskRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_faas_v1_tasks_proto_msgTypes[4]
+	mi := &file_faas_v1_tasks_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -400,18 +461,26 @@ func (x *DeleteTaskRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteTaskRequest.ProtoReflect.Descriptor instead.
 func (*DeleteTaskRequest) Descriptor() ([]byte, []int) {
-	return file_faas_v1_tasks_proto_rawDescGZIP(), []int{4}
+	return file_faas_v1_tasks_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *DeleteTaskRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
 }
 
 type CancelTaskRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CancelTaskRequest) Reset() {
 	*x = CancelTaskRequest{}
-	mi := &file_faas_v1_tasks_proto_msgTypes[5]
+	mi := &file_faas_v1_tasks_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -423,7 +492,7 @@ func (x *CancelTaskRequest) String() string {
 func (*CancelTaskRequest) ProtoMessage() {}
 
 func (x *CancelTaskRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_faas_v1_tasks_proto_msgTypes[5]
+	mi := &file_faas_v1_tasks_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -436,14 +505,21 @@ func (x *CancelTaskRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelTaskRequest.ProtoReflect.Descriptor instead.
 func (*CancelTaskRequest) Descriptor() ([]byte, []int) {
-	return file_faas_v1_tasks_proto_rawDescGZIP(), []int{5}
+	return file_faas_v1_tasks_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CancelTaskRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
 }
 
 var File_faas_v1_tasks_proto protoreflect.FileDescriptor
 
 const file_faas_v1_tasks_proto_rawDesc = "" +
 	"\n" +
-	"\x13faas/v1/tasks.proto\x12\afaas.v1\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa4\x03\n" +
+	"\x13faas/v1/tasks.proto\x12\afaas.v1\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xda\x02\n" +
 	"\x04Task\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
 	"\bfunction\x18\x02 \x01(\tR\bfunction\x12\x1e\n" +
@@ -455,23 +531,28 @@ const file_faas_v1_tasks_proto_rawDesc = "" +
 	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
 	"started_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x125\n" +
-	"\bended_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\aendedAt\x12%\n" +
-	"\rinline_result\x18\n" +
-	" \x01(\fH\x00R\finlineResult\x12\x1f\n" +
+	"\bended_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\aendedAt\x12+\n" +
+	"\x06result\x18\b \x01(\v2\x13.faas.v1.TaskResultR\x06result\"\x83\x01\n" +
 	"\n" +
-	"object_key\x18\v \x01(\tH\x00R\tobjectKey\x12#\n" +
-	"\rerror_message\x18\f \x01(\tR\ferrorMessageB\b\n" +
-	"\x06result\"\x10\n" +
-	"\x0eGetTaskRequest\"N\n" +
+	"TaskResult\x12%\n" +
+	"\rinline_result\x18\x01 \x01(\fH\x00R\finlineResult\x12\x1f\n" +
+	"\n" +
+	"object_key\x18\x02 \x01(\tH\x00R\tobjectKey\x12%\n" +
+	"\rerror_message\x18\x03 \x01(\tH\x00R\ferrorMessageB\x06\n" +
+	"\x04data\"$\n" +
+	"\x0eGetTaskRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"N\n" +
 	"\x10ListTasksRequest\x12\x1b\n" +
 	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x02 \x01(\tR\tpageToken\"`\n" +
 	"\x11ListTasksResponse\x12#\n" +
 	"\x05tasks\x18\x01 \x03(\v2\r.faas.v1.TaskR\x05tasks\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x13\n" +
-	"\x11DeleteTaskRequest\"\x13\n" +
-	"\x11CancelTaskRequest*\xa4\x01\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"'\n" +
+	"\x11DeleteTaskRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"'\n" +
+	"\x11CancelTaskRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name*\xa4\x01\n" +
 	"\tTaskState\x12\x1a\n" +
 	"\x16TASK_STATE_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12TASK_STATE_PENDING\x10\x01\x12\x19\n" +
@@ -500,37 +581,39 @@ func file_faas_v1_tasks_proto_rawDescGZIP() []byte {
 }
 
 var file_faas_v1_tasks_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_faas_v1_tasks_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_faas_v1_tasks_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_faas_v1_tasks_proto_goTypes = []any{
 	(TaskState)(0),                // 0: faas.v1.TaskState
 	(*Task)(nil),                  // 1: faas.v1.Task
-	(*GetTaskRequest)(nil),        // 2: faas.v1.GetTaskRequest
-	(*ListTasksRequest)(nil),      // 3: faas.v1.ListTasksRequest
-	(*ListTasksResponse)(nil),     // 4: faas.v1.ListTasksResponse
-	(*DeleteTaskRequest)(nil),     // 5: faas.v1.DeleteTaskRequest
-	(*CancelTaskRequest)(nil),     // 6: faas.v1.CancelTaskRequest
-	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),         // 8: google.protobuf.Empty
+	(*TaskResult)(nil),            // 2: faas.v1.TaskResult
+	(*GetTaskRequest)(nil),        // 3: faas.v1.GetTaskRequest
+	(*ListTasksRequest)(nil),      // 4: faas.v1.ListTasksRequest
+	(*ListTasksResponse)(nil),     // 5: faas.v1.ListTasksResponse
+	(*DeleteTaskRequest)(nil),     // 6: faas.v1.DeleteTaskRequest
+	(*CancelTaskRequest)(nil),     // 7: faas.v1.CancelTaskRequest
+	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),         // 9: google.protobuf.Empty
 }
 var file_faas_v1_tasks_proto_depIdxs = []int32{
-	0, // 0: faas.v1.Task.state:type_name -> faas.v1.TaskState
-	7, // 1: faas.v1.Task.created_at:type_name -> google.protobuf.Timestamp
-	7, // 2: faas.v1.Task.started_at:type_name -> google.protobuf.Timestamp
-	7, // 3: faas.v1.Task.ended_at:type_name -> google.protobuf.Timestamp
-	1, // 4: faas.v1.ListTasksResponse.tasks:type_name -> faas.v1.Task
-	2, // 5: faas.v1.Tasks.GetTask:input_type -> faas.v1.GetTaskRequest
-	3, // 6: faas.v1.Tasks.ListTasks:input_type -> faas.v1.ListTasksRequest
-	5, // 7: faas.v1.Tasks.DeleteTask:input_type -> faas.v1.DeleteTaskRequest
-	6, // 8: faas.v1.Tasks.CancelTask:input_type -> faas.v1.CancelTaskRequest
-	1, // 9: faas.v1.Tasks.GetTask:output_type -> faas.v1.Task
-	4, // 10: faas.v1.Tasks.ListTasks:output_type -> faas.v1.ListTasksResponse
-	8, // 11: faas.v1.Tasks.DeleteTask:output_type -> google.protobuf.Empty
-	1, // 12: faas.v1.Tasks.CancelTask:output_type -> faas.v1.Task
-	9, // [9:13] is the sub-list for method output_type
-	5, // [5:9] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	0,  // 0: faas.v1.Task.state:type_name -> faas.v1.TaskState
+	8,  // 1: faas.v1.Task.created_at:type_name -> google.protobuf.Timestamp
+	8,  // 2: faas.v1.Task.started_at:type_name -> google.protobuf.Timestamp
+	8,  // 3: faas.v1.Task.ended_at:type_name -> google.protobuf.Timestamp
+	2,  // 4: faas.v1.Task.result:type_name -> faas.v1.TaskResult
+	1,  // 5: faas.v1.ListTasksResponse.tasks:type_name -> faas.v1.Task
+	3,  // 6: faas.v1.Tasks.GetTask:input_type -> faas.v1.GetTaskRequest
+	4,  // 7: faas.v1.Tasks.ListTasks:input_type -> faas.v1.ListTasksRequest
+	6,  // 8: faas.v1.Tasks.DeleteTask:input_type -> faas.v1.DeleteTaskRequest
+	7,  // 9: faas.v1.Tasks.CancelTask:input_type -> faas.v1.CancelTaskRequest
+	1,  // 10: faas.v1.Tasks.GetTask:output_type -> faas.v1.Task
+	5,  // 11: faas.v1.Tasks.ListTasks:output_type -> faas.v1.ListTasksResponse
+	9,  // 12: faas.v1.Tasks.DeleteTask:output_type -> google.protobuf.Empty
+	1,  // 13: faas.v1.Tasks.CancelTask:output_type -> faas.v1.Task
+	10, // [10:14] is the sub-list for method output_type
+	6,  // [6:10] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_faas_v1_tasks_proto_init() }
@@ -538,9 +621,10 @@ func file_faas_v1_tasks_proto_init() {
 	if File_faas_v1_tasks_proto != nil {
 		return
 	}
-	file_faas_v1_tasks_proto_msgTypes[0].OneofWrappers = []any{
-		(*Task_InlineResult)(nil),
-		(*Task_ObjectKey)(nil),
+	file_faas_v1_tasks_proto_msgTypes[1].OneofWrappers = []any{
+		(*TaskResult_InlineResult)(nil),
+		(*TaskResult_ObjectKey)(nil),
+		(*TaskResult_ErrorMessage)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -548,7 +632,7 @@ func file_faas_v1_tasks_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_faas_v1_tasks_proto_rawDesc), len(file_faas_v1_tasks_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

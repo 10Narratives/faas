@@ -2,7 +2,6 @@ package funcdomain
 
 import (
 	"context"
-	"encoding/json"
 	"io"
 )
 
@@ -61,9 +60,9 @@ type DeleteFunctionArgs struct {
 
 type ExecuteFunctionArgs struct {
 	Name       FunctionName
-	Parameters json.RawMessage
+	Parameters string
 }
 
 type ExecuteFunctionResult struct {
-	OperationName string
+	TaskName string
 }

@@ -13,17 +13,18 @@ message Task {
   string function = 2;
   string parameters = 3;
   TaskState state = 4;
-
   google.protobuf.Timestamp created_at = 5;
   google.protobuf.Timestamp started_at = 6;
   google.protobuf.Timestamp ended_at = 7;
+  TaskResult result = 8;
+}
 
-  oneof result {
-    bytes inline_result = 10;
-    string object_key = 11;
+message TaskResult {
+  oneof data {
+    bytes inline_result = 1;
+    string object_key = 2;
+    string error_message = 3;
   }
-
-  string error_message = 12;
 }
 
 enum TaskState {
@@ -51,7 +52,7 @@ service Tasks {
 }
 
 message GetTaskRequest {
-
+  string name = 1;
 }
 
 message ListTasksRequest {
@@ -65,9 +66,9 @@ message ListTasksResponse {
 }
 
 message DeleteTaskRequest {
-
+  string name = 1;
 }
 
 message CancelTaskRequest {
-
+  string name = 1;
 }

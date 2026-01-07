@@ -151,35 +151,33 @@ func (m *Task) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for ErrorMessage
-
-	switch v := m.Result.(type) {
-	case *Task_InlineResult:
-		if v == nil {
-			err := TaskValidationError{
-				field:  "Result",
-				reason: "oneof value cannot be a typed-nil",
+	if all {
+		switch v := interface{}(m.GetResult()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, TaskValidationError{
+					field:  "Result",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
 			}
-			if !all {
-				return err
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, TaskValidationError{
+					field:  "Result",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
 			}
-			errors = append(errors, err)
 		}
-		// no validation rules for InlineResult
-	case *Task_ObjectKey:
-		if v == nil {
-			err := TaskValidationError{
+	} else if v, ok := interface{}(m.GetResult()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return TaskValidationError{
 				field:  "Result",
-				reason: "oneof value cannot be a typed-nil",
+				reason: "embedded message failed validation",
+				cause:  err,
 			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
 		}
-		// no validation rules for ObjectKey
-	default:
-		_ = v // ensures v is used
 	}
 
 	if len(errors) > 0 {
@@ -259,6 +257,146 @@ var _ interface {
 	ErrorName() string
 } = TaskValidationError{}
 
+// Validate checks the field values on TaskResult with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *TaskResult) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TaskResult with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in TaskResultMultiError, or
+// nil if none found.
+func (m *TaskResult) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TaskResult) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	switch v := m.Data.(type) {
+	case *TaskResult_InlineResult:
+		if v == nil {
+			err := TaskResultValidationError{
+				field:  "Data",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+		// no validation rules for InlineResult
+	case *TaskResult_ObjectKey:
+		if v == nil {
+			err := TaskResultValidationError{
+				field:  "Data",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+		// no validation rules for ObjectKey
+	case *TaskResult_ErrorMessage:
+		if v == nil {
+			err := TaskResultValidationError{
+				field:  "Data",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+		// no validation rules for ErrorMessage
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return TaskResultMultiError(errors)
+	}
+
+	return nil
+}
+
+// TaskResultMultiError is an error wrapping multiple validation errors
+// returned by TaskResult.ValidateAll() if the designated constraints aren't met.
+type TaskResultMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TaskResultMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TaskResultMultiError) AllErrors() []error { return m }
+
+// TaskResultValidationError is the validation error returned by
+// TaskResult.Validate if the designated constraints aren't met.
+type TaskResultValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TaskResultValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TaskResultValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TaskResultValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TaskResultValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TaskResultValidationError) ErrorName() string { return "TaskResultValidationError" }
+
+// Error satisfies the builtin error interface
+func (e TaskResultValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTaskResult.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TaskResultValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TaskResultValidationError{}
+
 // Validate checks the field values on GetTaskRequest with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -280,6 +418,8 @@ func (m *GetTaskRequest) validate(all bool) error {
 	}
 
 	var errors []error
+
+	// no validation rules for Name
 
 	if len(errors) > 0 {
 		return GetTaskRequestMultiError(errors)
@@ -623,6 +763,8 @@ func (m *DeleteTaskRequest) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for Name
+
 	if len(errors) > 0 {
 		return DeleteTaskRequestMultiError(errors)
 	}
@@ -724,6 +866,8 @@ func (m *CancelTaskRequest) validate(all bool) error {
 	}
 
 	var errors []error
+
+	// no validation rules for Name
 
 	if len(errors) > 0 {
 		return CancelTaskRequestMultiError(errors)

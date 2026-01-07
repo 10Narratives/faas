@@ -129,8 +129,31 @@ func (s *Server) UploadFunction(stream grpc.ClientStreamingServer[faaspb.UploadF
 	return stream.SendAndClose(domainToPBFunction(ur.res.Function))
 }
 
-func (s *Server) ExecuteFunction(ctx context.Context, req *faaspb.ExecuteFunctionRequest) (*faaspb.Task, error) {
-	return nil, status.Error(codes.Unimplemented, "method ExecuteFunction not implemented")
+func (s *Server) ExecuteFunction(ctx context.Context, req *faaspb.ExecuteFunctionRequest) (*faaspb.ExecuteFunctionResponse, error) {
+	name, err := funcdomain.ParseFunctionName(req.GetName())
+	if err != nil {
+		return nil, toStatusErr(err)
+	}
+
+	res, err := s.functionService.ExecuteFunction(ctx, &funcdomain.ExecuteFunctionArgs{
+		Name:       name,
+		Parameters: req.GetParameters(),
+	})
+	if err != nil {
+		return nil, toStatusErr(err)
+	}
+	if res == nil {
+		return nil, status.Error(codes.Internal, "missing execute function result")
+	}
+
+	outName := res.TaskName
+	if outName == "" {
+		outName = string(name)
+	}
+
+	return &faaspb.ExecuteFunctionResponse{
+		Name: outName,
+	}, nil
 }
 
 func (s *Server) GetFunction(ctx context.Context, req *faaspb.GetFunctionRequest) (*faaspb.Function, error) {

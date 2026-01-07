@@ -1,15 +1,15 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "faas/v1/tasks.proto",
+    "title": "faas/v1/functions.proto",
     "version": "version not set"
   },
   "tags": [
     {
-      "name": "Tasks"
+      "name": "Functions"
     },
     {
-      "name": "Functions"
+      "name": "Tasks"
     }
   ],
   "consumes": [
@@ -28,6 +28,14 @@
         "FORMAT_TAR_GZ"
       ],
       "default": "FORMAT_UNSPECIFIED"
+    },
+    "functionsExecuteFunctionResponse": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
     },
     "functionsFunction": {
       "type": "object",
@@ -170,6 +178,14 @@
           "type": "string",
           "format": "date-time"
         },
+        "result": {
+          "$ref": "#/definitions/v1TaskResult"
+        }
+      }
+    },
+    "v1TaskResult": {
+      "type": "object",
+      "properties": {
         "inlineResult": {
           "type": "string",
           "format": "byte"

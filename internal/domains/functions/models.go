@@ -25,16 +25,16 @@ const (
 )
 
 type SourceBundle struct {
-	Bucket    string
-	ObjectKey string
-	Size      uint64
-	SHA256    string
+	Bucket    string `json:"bucket"`
+	ObjectKey string `json:"object_key"`
+	Size      uint64 `json:"size"`
+	SHA256    string `json:"sha_256"`
 }
 
 type Function struct {
-	InternalID  uuid.UUID
-	Name        FunctionName
-	DisplayName string
-	UploadedAt  time.Time
-	Bundle      *SourceBundle
+	InternalID  uuid.UUID     `json:"internal_id"`
+	Name        FunctionName  `json:"name"`
+	DisplayName string        `json:"display_name"`
+	UploadedAt  time.Time     `json:"uploaded_at"`
+	Bundle      *SourceBundle `json:"bundle,omitzero"`
 }

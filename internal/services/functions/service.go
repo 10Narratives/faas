@@ -2,11 +2,13 @@ package funcsrv
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"time"
 
 	funcdomain "github.com/10Narratives/faas/internal/domains/functions"
+	taskdomain "github.com/10Narratives/faas/internal/domains/tasks"
 	"github.com/google/uuid"
 )
 
@@ -23,18 +25,25 @@ type FunctionObjectRepository interface {
 	DeleteBundle(ctx context.Context, bundle *funcdomain.SourceBundle) error
 }
 
+type TaskService interface {
+	taskdomain.TaskCreator
+}
+
 type Service struct {
 	funcMetaRepo FunctionMetadataRepository
 	funcObjRepo  FunctionObjectRepository
+	taskService  TaskService
 }
 
 func NewService(
 	funcMetaRepo FunctionMetadataRepository,
 	funcObjRepo FunctionObjectRepository,
+	taskService TaskService,
 ) *Service {
 	return &Service{
 		funcMetaRepo: funcMetaRepo,
 		funcObjRepo:  funcObjRepo,
+		taskService:  taskService,
 	}
 }
 
@@ -60,7 +69,36 @@ func (s *Service) DeleteFunction(ctx context.Context, args *funcdomain.DeleteFun
 }
 
 func (s *Service) ExecuteFunction(ctx context.Context, args *funcdomain.ExecuteFunctionArgs) (*funcdomain.ExecuteFunctionResult, error) {
-	panic("unimplemented")
+	if args == nil {
+		return nil, funcdomain.ErrInvalidArgument
+	}
+	if args.Name == "" {
+		return nil, funcdomain.ErrInvalidArgument
+	}
+
+	if len(args.Parameters) != 0 {
+		var tmp any
+		if err := json.Unmarshal([]byte(args.Parameters), &tmp); err != nil {
+			return nil, funcdomain.ErrInvalidArgument
+		}
+	}
+
+	got, err := s.funcMetaRepo.GetFunction(ctx, &funcdomain.GetFunctionArgs{Name: args.Name})
+	if err != nil {
+		return nil, err
+	}
+	if got == nil || got.Function == nil {
+		return nil, funcdomain.ErrFunctionNotFound
+	}
+
+	res, err := s.taskService.CreateTask(ctx, &taskdomain.CreateTaskArgs{Function: string(args.Name), Parameters: string(args.Parameters)})
+	if err != nil {
+		return nil, err
+	}
+
+	return &funcdomain.ExecuteFunctionResult{
+		TaskName: res.Name,
+	}, nil
 }
 
 func (s *Service) GetFunction(ctx context.Context, args *funcdomain.GetFunctionArgs) (*funcdomain.GetFunctionResult, error) {

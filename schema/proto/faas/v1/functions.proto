@@ -9,8 +9,6 @@ import "google/protobuf/timestamp.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 
-import "faas/v1/tasks.proto";
-
 //
 message Function {
   string name = 1;
@@ -33,7 +31,7 @@ service Functions {
   rpc UploadFunction(stream UploadFunctionRequest) returns (Function);
 
   //
-  rpc ExecuteFunction(ExecuteFunctionRequest) returns (Task);
+  rpc ExecuteFunction(ExecuteFunctionRequest) returns (ExecuteFunctionResponse);
 
   //
   rpc GetFunction(GetFunctionRequest) returns (Function);
@@ -70,6 +68,10 @@ message UploadFunctionData {
 message ExecuteFunctionRequest {
   string name = 1;
   string parameters = 2;
+}
+
+message ExecuteFunctionResponse {
+  string name = 1;
 }
 
 message GetFunctionRequest {
