@@ -13,8 +13,13 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 )
 
+//go:generate mockery --name KeyValue --output ./mocks --outpkg mocks --with-expecter --filename key_value.go
+type KeyValue interface {
+	jetstream.KeyValue
+}
+
 type Repository struct {
-	kv jetstream.KeyValue
+	kv KeyValue
 }
 
 func NewRepository(ctx context.Context, js jetstream.JetStream, bucket string) (*Repository, error) {
@@ -62,9 +67,7 @@ func (r *Repository) CancelTask(ctx context.Context, args *taskdomain.CancelTask
 		return nil, err
 	}
 
-	// optimistic concurrency: обновляем только если ревизия не изменилась
 	if _, err := r.kv.Update(ctx, args.Name, b, entry.Revision()); err != nil {
-		// при гонках/конкурентных обновлениях считаем, что отменить уже нельзя
 		return nil, taskdomain.ErrCannotCancelTask
 	}
 

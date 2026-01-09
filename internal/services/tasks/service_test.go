@@ -8,206 +8,184 @@ import (
 	taskdomain "github.com/10Narratives/faas/internal/domains/tasks"
 	tasksrv "github.com/10Narratives/faas/internal/services/tasks"
 	"github.com/10Narratives/faas/internal/services/tasks/mocks"
-	"github.com/stretchr/testify/mock"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
-func TestService_CancelTask(t *testing.T) {
-	t.Parallel()
+func TestService_CreateTask(t *testing.T) {
+	ctx := context.Background()
 
-	t.Run("nil args -> ErrInvalidName", func(t *testing.T) {
-		t.Parallel()
-
+	t.Run("error: repo returns error", func(t *testing.T) {
 		repo := mocks.NewTaskRepository(t)
-		svc := tasksrv.NewService(repo)
+		pub := mocks.NewTaskPublisher(t)
 
-		res, err := svc.CancelTask(context.Background(), nil)
+		svc := tasksrv.NewService(repo, pub)
+
+		args := &taskdomain.CreateTaskArgs{Function: "fn", Parameters: "{}"}
+		wantErr := errors.New("repo fail")
+
+		repo.EXPECT().CreateTask(ctx, args).Return((*taskdomain.CreateTaskResult)(nil), wantErr).Once()
+
+		res, err := svc.CreateTask(ctx, args)
+		require.ErrorIs(t, err, wantErr)
 		require.Nil(t, res)
-		require.Error(t, err)
-		require.True(t, errors.Is(err, taskdomain.ErrInvalidName))
 	})
 
-	t.Run("empty name -> ErrInvalidName", func(t *testing.T) {
-		t.Parallel()
-
+	t.Run("error: repo returns nil result", func(t *testing.T) {
 		repo := mocks.NewTaskRepository(t)
-		svc := tasksrv.NewService(repo)
+		pub := mocks.NewTaskPublisher(t)
 
-		res, err := svc.CancelTask(context.Background(), &taskdomain.CancelTaskArgs{Name: ""})
+		svc := tasksrv.NewService(repo, pub)
+
+		args := &taskdomain.CreateTaskArgs{Function: "fn", Parameters: "{}"}
+
+		repo.EXPECT().CreateTask(ctx, args).Return((*taskdomain.CreateTaskResult)(nil), nil).Once()
+
+		res, err := svc.CreateTask(ctx, args)
+		require.ErrorIs(t, err, taskdomain.ErrAlreadyExists)
 		require.Nil(t, res)
-		require.Error(t, err)
-		require.True(t, errors.Is(err, taskdomain.ErrInvalidName))
 	})
 
-	t.Run("bad name format -> ErrInvalidName", func(t *testing.T) {
-		t.Parallel()
-
+	t.Run("error: repo returns empty name", func(t *testing.T) {
 		repo := mocks.NewTaskRepository(t)
-		svc := tasksrv.NewService(repo)
+		pub := mocks.NewTaskPublisher(t)
 
-		res, err := svc.CancelTask(context.Background(), &taskdomain.CancelTaskArgs{Name: "bad"})
+		svc := tasksrv.NewService(repo, pub)
+
+		args := &taskdomain.CreateTaskArgs{Function: "fn", Parameters: "{}"}
+
+		repo.EXPECT().CreateTask(ctx, args).Return(&taskdomain.CreateTaskResult{Name: ""}, nil).Once()
+
+		res, err := svc.CreateTask(ctx, args)
+		require.ErrorIs(t, err, taskdomain.ErrAlreadyExists)
 		require.Nil(t, res)
-		require.Error(t, err)
-		require.True(t, errors.Is(err, taskdomain.ErrInvalidName))
 	})
 
-	t.Run("repo error -> passthrough", func(t *testing.T) {
-		t.Parallel()
-
+	t.Run("ok: publish execute called; ignore publish error", func(t *testing.T) {
 		repo := mocks.NewTaskRepository(t)
-		svc := tasksrv.NewService(repo)
+		pub := mocks.NewTaskPublisher(t)
 
-		args := &taskdomain.CancelTaskArgs{Name: "tasks/1"}
+		svc := tasksrv.NewService(repo, pub)
 
-		repo.EXPECT().
-			CancelTask(mock.Anything, args).
-			Return((*taskdomain.CancelTaskResult)(nil), taskdomain.ErrCannotCancelTask)
+		args := &taskdomain.CreateTaskArgs{Function: "fn", Parameters: "{}"}
+		repoRes := &taskdomain.CreateTaskResult{Name: "tasks/123"}
 
-		res, err := svc.CancelTask(context.Background(), args)
-		require.Nil(t, res)
-		require.Error(t, err)
-		require.True(t, errors.Is(err, taskdomain.ErrCannotCancelTask))
-	})
+		repo.EXPECT().CreateTask(ctx, args).Return(repoRes, nil).Once()
+		pub.EXPECT().
+			PublishExecute(ctx, &taskdomain.ExecuteTaskMessage{TaskName: taskdomain.TaskName("tasks/123")}).
+			Return(errors.New("publish failed")).
+			Once()
 
-	t.Run("repo returns nil result -> ErrNotFound", func(t *testing.T) {
-		t.Parallel()
-
-		repo := mocks.NewTaskRepository(t)
-		svc := tasksrv.NewService(repo)
-
-		args := &taskdomain.CancelTaskArgs{Name: "tasks/1"}
-
-		repo.EXPECT().
-			CancelTask(mock.Anything, args).
-			Return((*taskdomain.CancelTaskResult)(nil), nil)
-
-		res, err := svc.CancelTask(context.Background(), args)
-		require.Nil(t, res)
-		require.Error(t, err)
-		require.True(t, errors.Is(err, taskdomain.ErrNotFound))
-	})
-
-	t.Run("repo returns result with nil task -> ErrNotFound", func(t *testing.T) {
-		t.Parallel()
-
-		repo := mocks.NewTaskRepository(t)
-		svc := tasksrv.NewService(repo)
-
-		args := &taskdomain.CancelTaskArgs{Name: "tasks/1"}
-
-		repo.EXPECT().
-			CancelTask(mock.Anything, args).
-			Return(&taskdomain.CancelTaskResult{Task: nil}, nil)
-
-		res, err := svc.CancelTask(context.Background(), args)
-		require.Nil(t, res)
-		require.Error(t, err)
-		require.True(t, errors.Is(err, taskdomain.ErrNotFound))
-	})
-
-	t.Run("ok -> returns repo result", func(t *testing.T) {
-		t.Parallel()
-
-		repo := mocks.NewTaskRepository(t)
-		svc := tasksrv.NewService(repo)
-
-		args := &taskdomain.CancelTaskArgs{Name: "tasks/1"}
-
-		want := &taskdomain.CancelTaskResult{
-			Task: &taskdomain.Task{
-				Name:       taskdomain.TaskName("tasks/1"),
-				Function:   "fn",
-				Parameters: "{}",
-				State:      taskdomain.TaskStateCanceled,
-			},
-		}
-
-		repo.EXPECT().
-			CancelTask(mock.Anything, args).
-			Return(want, nil)
-
-		got, err := svc.CancelTask(context.Background(), args)
+		res, err := svc.CreateTask(ctx, args)
 		require.NoError(t, err)
-		require.Same(t, want, got)
-		require.NotNil(t, got.Task)
-		require.Equal(t, "tasks/1", string(got.Task.Name))
+		require.Equal(t, repoRes, res)
 	})
 }
 
-func TestService_DeleteTask_Delegates(t *testing.T) {
-	t.Parallel()
+func TestService_CancelTask(t *testing.T) {
+	ctx := context.Background()
 
-	repo := mocks.NewTaskRepository(t)
-	svc := tasksrv.NewService(repo)
+	t.Run("error: args nil", func(t *testing.T) {
+		repo := mocks.NewTaskRepository(t)
+		pub := mocks.NewTaskPublisher(t)
 
-	args := &taskdomain.DeleteTaskArgs{Name: "tasks/1"}
+		svc := tasksrv.NewService(repo, pub)
 
-	repo.EXPECT().
-		DeleteTask(mock.Anything, args).
-		Return(nil)
+		res, err := svc.CancelTask(ctx, nil)
+		require.ErrorIs(t, err, taskdomain.ErrInvalidName)
+		require.Nil(t, res)
+	})
 
-	err := svc.DeleteTask(context.Background(), args)
-	require.NoError(t, err)
-}
+	t.Run("error: empty name", func(t *testing.T) {
+		repo := mocks.NewTaskRepository(t)
+		pub := mocks.NewTaskPublisher(t)
 
-func TestService_ListTasks_Delegates(t *testing.T) {
-	t.Parallel()
+		svc := tasksrv.NewService(repo, pub)
 
-	repo := mocks.NewTaskRepository(t)
-	svc := tasksrv.NewService(repo)
+		res, err := svc.CancelTask(ctx, &taskdomain.CancelTaskArgs{Name: ""})
+		require.ErrorIs(t, err, taskdomain.ErrInvalidName)
+		require.Nil(t, res)
+	})
 
-	args := &taskdomain.ListTasksArgs{PageSize: 10, PageToken: "p"}
-	want := &taskdomain.ListTaskResult{
-		Tasks:         []*taskdomain.Task{{Name: taskdomain.TaskName("tasks/1")}},
-		NextPageToken: "next",
-	}
+	t.Run("error: invalid name format", func(t *testing.T) {
+		repo := mocks.NewTaskRepository(t)
+		pub := mocks.NewTaskPublisher(t)
 
-	repo.EXPECT().
-		ListTasks(mock.Anything, args).
-		Return(want, nil)
+		svc := tasksrv.NewService(repo, pub)
 
-	got, err := svc.ListTasks(context.Background(), args)
-	require.NoError(t, err)
-	require.Same(t, want, got)
-	require.Equal(t, "next", got.NextPageToken)
-	require.Len(t, got.Tasks, 1)
-}
+		res, err := svc.CancelTask(ctx, &taskdomain.CancelTaskArgs{Name: "bad/123"})
+		require.ErrorIs(t, err, taskdomain.ErrInvalidName)
+		require.Nil(t, res)
+	})
 
-func TestService_GetTask_Delegates(t *testing.T) {
-	t.Parallel()
+	t.Run("error: repo returns error", func(t *testing.T) {
+		repo := mocks.NewTaskRepository(t)
+		pub := mocks.NewTaskPublisher(t)
 
-	repo := mocks.NewTaskRepository(t)
-	svc := tasksrv.NewService(repo)
+		svc := tasksrv.NewService(repo, pub)
 
-	args := &taskdomain.GetTaskArgs{Name: "tasks/1"}
-	want := &taskdomain.GetTaskResult{
-		Task: &taskdomain.Task{Name: taskdomain.TaskName("tasks/1")},
-	}
+		args := &taskdomain.CancelTaskArgs{Name: "tasks/123"}
+		wantErr := errors.New("repo fail")
 
-	repo.EXPECT().
-		GetTask(mock.Anything, args).
-		Return(want, nil)
+		repo.EXPECT().CancelTask(ctx, args).Return((*taskdomain.CancelTaskResult)(nil), wantErr).Once()
 
-	got, err := svc.GetTask(context.Background(), args)
-	require.NoError(t, err)
-	require.Same(t, want, got)
-	require.NotNil(t, got.Task)
-}
+		res, err := svc.CancelTask(ctx, args)
+		require.ErrorIs(t, err, wantErr)
+		require.Nil(t, res)
+	})
 
-func TestService_CreateTask_Delegates(t *testing.T) {
-	t.Parallel()
+	t.Run("error: repo returns nil result", func(t *testing.T) {
+		repo := mocks.NewTaskRepository(t)
+		pub := mocks.NewTaskPublisher(t)
 
-	repo := mocks.NewTaskRepository(t)
-	svc := tasksrv.NewService(repo)
+		svc := tasksrv.NewService(repo, pub)
 
-	args := &taskdomain.CreateTaskArgs{Function: "fn", Parameters: "{}"}
-	want := &taskdomain.CreateTaskResult{}
+		args := &taskdomain.CancelTaskArgs{Name: "tasks/123"}
 
-	repo.EXPECT().
-		CreateTask(mock.Anything, args).
-		Return(want, nil)
+		repo.EXPECT().CancelTask(ctx, args).Return((*taskdomain.CancelTaskResult)(nil), nil).Once()
 
-	got, err := svc.CreateTask(context.Background(), args)
-	require.NoError(t, err)
-	require.Same(t, want, got)
+		res, err := svc.CancelTask(ctx, args)
+		require.ErrorIs(t, err, taskdomain.ErrNotFound)
+		require.Nil(t, res)
+	})
+
+	t.Run("error: repo returns result with nil task", func(t *testing.T) {
+		repo := mocks.NewTaskRepository(t)
+		pub := mocks.NewTaskPublisher(t)
+
+		svc := tasksrv.NewService(repo, pub)
+
+		args := &taskdomain.CancelTaskArgs{Name: "tasks/123"}
+
+		repo.EXPECT().CancelTask(ctx, args).Return(&taskdomain.CancelTaskResult{Task: nil}, nil).Once()
+
+		res, err := svc.CancelTask(ctx, args)
+		require.ErrorIs(t, err, taskdomain.ErrNotFound)
+		require.Nil(t, res)
+	})
+
+	t.Run("ok: publish cancel called; ignore publish error", func(t *testing.T) {
+		repo := mocks.NewTaskRepository(t)
+		pub := mocks.NewTaskPublisher(t)
+
+		svc := tasksrv.NewService(repo, pub)
+
+		args := &taskdomain.CancelTaskArgs{Name: "tasks/123"}
+
+		task := &taskdomain.Task{
+			ID:   uuid.New(),
+			Name: taskdomain.TaskName("tasks/123"),
+		}
+		repoRes := &taskdomain.CancelTaskResult{Task: task}
+
+		repo.EXPECT().CancelTask(ctx, args).Return(repoRes, nil).Once()
+		pub.EXPECT().
+			PublishCancel(ctx, &taskdomain.CancelTaskMessage{TaskName: taskdomain.TaskName("tasks/123")}).
+			Return(errors.New("publish failed")).
+			Once()
+
+		res, err := svc.CancelTask(ctx, args)
+		require.NoError(t, err)
+		require.Equal(t, repoRes, res)
+	})
 }

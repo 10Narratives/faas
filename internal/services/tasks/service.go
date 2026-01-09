@@ -15,12 +15,24 @@ type TaskRepository interface {
 	taskdomain.TaskCanceler
 }
 
-type Service struct {
-	taskRepo TaskRepository
+//go:generate mockery --name TaskPublisher --output ./mocks --outpkg mocks --with-expecter --filename task_publisher.go
+type TaskPublisher interface {
+	taskdomain.TaskPublisher
 }
 
-func NewService(taskRepo TaskRepository) *Service {
-	return &Service{taskRepo: taskRepo}
+type Service struct {
+	taskRepo TaskRepository
+	taskPub  TaskPublisher
+}
+
+func NewService(
+	taskRepo TaskRepository,
+	taskPub TaskPublisher,
+) *Service {
+	return &Service{
+		taskRepo: taskRepo,
+		taskPub:  taskPub,
+	}
 }
 
 func (s *Service) CancelTask(ctx context.Context, args *taskdomain.CancelTaskArgs) (*taskdomain.CancelTaskResult, error) {
@@ -38,6 +50,11 @@ func (s *Service) CancelTask(ctx context.Context, args *taskdomain.CancelTaskArg
 	if res == nil || res.Task == nil {
 		return nil, taskdomain.ErrNotFound
 	}
+
+	_ = s.taskPub.PublishCancel(ctx, &taskdomain.CancelTaskMessage{
+		TaskName: res.Task.Name,
+	})
+
 	return res, nil
 }
 
@@ -54,5 +71,17 @@ func (s *Service) GetTask(ctx context.Context, args *taskdomain.GetTaskArgs) (*t
 }
 
 func (s *Service) CreateTask(ctx context.Context, args *taskdomain.CreateTaskArgs) (*taskdomain.CreateTaskResult, error) {
-	return s.taskRepo.CreateTask(ctx, args)
+	res, err := s.taskRepo.CreateTask(ctx, args)
+	if err != nil {
+		return nil, err
+	}
+	if res == nil || res.Name == "" {
+		return nil, taskdomain.ErrAlreadyExists
+	}
+
+	_ = s.taskPub.PublishExecute(ctx, &taskdomain.ExecuteTaskMessage{
+		TaskName: taskdomain.TaskName(res.Name),
+	})
+
+	return res, nil
 }

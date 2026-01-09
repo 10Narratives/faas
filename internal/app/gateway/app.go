@@ -50,7 +50,9 @@ func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
 		return nil, fmt.Errorf("cannot create task repo: %w", err)
 	}
 
-	taskService := tasksrv.NewService(taskRepo)
+	taskPub := taskrepo.NewPublisher(js)
+
+	taskService := tasksrv.NewService(taskRepo, taskPub)
 
 	funcMetaRepo, err := funcrepo.NewMetadataRepository(context.Background(), js, "functions-meta")
 	if err != nil {

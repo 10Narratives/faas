@@ -1,6 +1,8 @@
 package taskdomain
 
-import "context"
+import (
+	"context"
+)
 
 type TaskCreator interface {
 	CreateTask(ctx context.Context, args *CreateTaskArgs) (*CreateTaskResult, error)
@@ -13,6 +15,19 @@ type CreateTaskArgs struct {
 
 type CreateTaskResult struct {
 	Name string
+}
+
+type TaskPublisher interface {
+	PublishExecute(ctx context.Context, msg *ExecuteTaskMessage) error
+	PublishCancel(ctx context.Context, msg *CancelTaskMessage) error
+}
+
+type ExecuteTaskMessage struct {
+	TaskName TaskName `json:"task_name"`
+}
+
+type CancelTaskMessage struct {
+	TaskName TaskName `json:"task_name"`
 }
 
 type TaskGetter interface {
