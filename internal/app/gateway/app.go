@@ -18,8 +18,6 @@ import (
 	"github.com/10Narratives/faas/internal/transport/grpc/interceptors/logging"
 	"github.com/10Narratives/faas/internal/transport/grpc/interceptors/recovery"
 	"github.com/10Narratives/faas/internal/transport/grpc/interceptors/validator"
-	"github.com/nats-io/nats.go"
-	"github.com/nats-io/nats.go/jetstream"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -29,41 +27,30 @@ type App struct {
 	cfg *Config
 	log *zap.Logger
 
-	unifiedStorage *nats.Conn
-	grpcServer     *grpcsrv.Component
+	unifiedStorage *natscomp.UnifiedStorage
+
+	taskRepo *taskrepo.Repository
+	taskPub  *taskrepo.Publisher
+
+	funcMeta *funcrepo.MetadataRepository
+	funcObj  *funcrepo.ObjectRepository
+
+	grpcServer *grpcsrv.Component
 }
 
 func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
-	unifiedStorage, err := natscomp.NewConnection(cfg.UnifiedStorage.URL)
+	unifiedStorage, err := natscomp.NewUnifiedStorage(cfg.UnifiedStorage.URL)
 	if err != nil {
 		return nil, fmt.Errorf("cannot connect to unified storage: %w", err)
 	}
 	log.Info("connection to unified storage established")
 
-	js, err := jetstream.New(unifiedStorage)
-	if err != nil {
-		return nil, fmt.Errorf("cannot create jet stream: %w", err)
-	}
-
-	taskRepo, err := taskrepo.NewRepository(context.Background(), js, "tasks")
-	if err != nil {
-		return nil, fmt.Errorf("cannot create task repo: %w", err)
-	}
-
-	taskPub := taskrepo.NewPublisher(js)
+	taskRepo := taskrepo.NewRepository(unifiedStorage.TaskMeta)
+	taskPub := taskrepo.NewPublisher(unifiedStorage.JS)
+	funcMetaRepo := funcrepo.NewMetadataRepository(unifiedStorage.FuncMeta)
+	funcObjRepo := funcrepo.NewObjectRepository(unifiedStorage.FuncObj)
 
 	taskService := tasksrv.NewService(taskRepo, taskPub)
-
-	funcMetaRepo, err := funcrepo.NewMetadataRepository(context.Background(), js, "functions-meta")
-	if err != nil {
-		return nil, fmt.Errorf("cannot create functions meta repo: %w", err)
-	}
-
-	funcObjRepo, err := funcrepo.NewObjectRepository(context.Background(), js, "functions")
-	if err != nil {
-		return nil, fmt.Errorf("cannot create functions object repo: %w", err)
-	}
-
 	funcService := funcsrv.NewService(funcMetaRepo, funcObjRepo, taskService)
 
 	grpcServer := grpcsrv.NewComponent(cfg.Server.Grpc.Address,
@@ -92,6 +79,10 @@ func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
 		log:            log,
 		grpcServer:     grpcServer,
 		unifiedStorage: unifiedStorage,
+		taskRepo:       taskRepo,
+		taskPub:        taskPub,
+		funcMeta:       funcMetaRepo,
+		funcObj:        funcObjRepo,
 	}, nil
 }
 
@@ -119,10 +110,10 @@ func (a *App) Shutdown(ctx context.Context) error {
 	})
 
 	errGroup.Go(func() error {
-		a.log.Debug("closing connection to task queue")
-		defer a.log.Info("connection to task queue closed")
+		a.log.Debug("closing connection to unified storage")
+		defer a.log.Info("connection to task unified storage")
 
-		a.unifiedStorage.Close()
+		a.unifiedStorage.Conn.Close()
 		return nil
 	})
 

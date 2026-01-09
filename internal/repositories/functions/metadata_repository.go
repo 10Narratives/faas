@@ -17,18 +17,8 @@ type MetadataRepository struct {
 	kv jetstream.KeyValue
 }
 
-func NewMetadataRepository(ctx context.Context, js jetstream.JetStream, bucket string) (*MetadataRepository, error) {
-	kv, err := js.KeyValue(ctx, bucket)
-	if err != nil {
-		kv, err = js.CreateKeyValue(ctx, jetstream.KeyValueConfig{
-			Bucket:  bucket,
-			History: 1,
-		})
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &MetadataRepository{kv: kv}, nil
+func NewMetadataRepository(kv jetstream.KeyValue) *MetadataRepository {
+	return &MetadataRepository{kv: kv}
 }
 
 func (r *MetadataRepository) CreateFunction(ctx context.Context, fn *funcdomain.Function) error {

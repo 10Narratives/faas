@@ -11,44 +11,24 @@ import (
 )
 
 const (
-	subjectTaskExecute = "tasks.execute"
-	subjectTaskCancel  = "tasks.cancel"
+	// ВАЖНО: эти subjects должны попадать под subjects стрима TASKS (например "task.*")
+	subjectTaskExecute = "task.execute"
+	subjectTaskCancel  = "task.cancel"
 
 	streamTasks = "TASKS"
 )
 
-//go:generate mockery --name Stream --output ./mocks --outpkg mocks --with-expecter --filename stream.go
-type Stream interface {
-	jetstream.JetStream
+// Интерфейс под мок: publish через JetStream + ожидание конкретного стрима
+type JS interface {
+	Publish(ctx context.Context, subj string, data []byte, opts ...jetstream.PublishOpt) (*jetstream.PubAck, error)
 }
 
 type Publisher struct {
-	js Stream
+	js JS
 }
 
-func NewPublisher(js jetstream.JetStream) *Publisher {
+func NewPublisher(js JS) *Publisher {
 	return &Publisher{js: js}
-}
-
-// ensureTasksStream implements "variant 2":
-// try to get stream handle; if not found -> create stream.
-func (p *Publisher) ensureTasksStream(ctx context.Context) error {
-	_, err := p.js.Stream(ctx, streamTasks)
-	if err == nil {
-		return nil
-	}
-	if !errors.Is(err, jetstream.ErrStreamNotFound) {
-		return fmt.Errorf("get stream %s: %w", streamTasks, err)
-	}
-
-	_, err = p.js.CreateStream(ctx, jetstream.StreamConfig{
-		Name:     streamTasks,
-		Subjects: []string{subjectTaskExecute, subjectTaskCancel},
-	})
-	if err != nil {
-		return fmt.Errorf("create stream %s: %w", streamTasks, err)
-	}
-	return nil
 }
 
 func (p *Publisher) PublishCancel(ctx context.Context, msg *taskdomain.CancelTaskMessage) error {
@@ -59,16 +39,12 @@ func (p *Publisher) PublishCancel(ctx context.Context, msg *taskdomain.CancelTas
 		return taskdomain.ErrInvalidName
 	}
 
-	if err := p.ensureTasksStream(ctx); err != nil {
-		return err
-	}
-
 	b, err := json.Marshal(msg)
 	if err != nil {
 		return fmt.Errorf("marshal cancel msg: %w", err)
 	}
 
-	_, err = p.js.Publish(ctx, subjectTaskCancel, b)
+	_, err = p.js.Publish(ctx, subjectTaskCancel, b, jetstream.WithExpectStream(streamTasks))
 	if err != nil {
 		return fmt.Errorf("jetstream publish cancel: %w", err)
 	}
@@ -83,16 +59,12 @@ func (p *Publisher) PublishExecute(ctx context.Context, msg *taskdomain.ExecuteT
 		return taskdomain.ErrInvalidName
 	}
 
-	if err := p.ensureTasksStream(ctx); err != nil {
-		return err
-	}
-
 	b, err := json.Marshal(msg)
 	if err != nil {
 		return fmt.Errorf("marshal execute msg: %w", err)
 	}
 
-	_, err = p.js.Publish(ctx, subjectTaskExecute, b)
+	_, err = p.js.Publish(ctx, subjectTaskExecute, b, jetstream.WithExpectStream(streamTasks))
 	if err != nil {
 		return fmt.Errorf("jetstream publish execute: %w", err)
 	}

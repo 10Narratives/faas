@@ -1,0 +1,9 @@
+{
+  "name": "TASKS",
+  "subjects": [
+    "task.*"
+  ],
+  "storage": "file",
+  "num_replicas": 1,
+  "max_bytes": 8589934592
+}

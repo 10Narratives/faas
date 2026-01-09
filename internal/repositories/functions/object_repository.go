@@ -10,19 +10,11 @@ import (
 )
 
 type ObjectRepository struct {
-	bucket string
-	os     jetstream.ObjectStore
+	os jetstream.ObjectStore
 }
 
-func NewObjectRepository(ctx context.Context, js jetstream.JetStream, bucket string) (*ObjectRepository, error) {
-	os, err := js.ObjectStore(ctx, bucket)
-	if err != nil {
-		os, err = js.CreateObjectStore(ctx, jetstream.ObjectStoreConfig{Bucket: bucket})
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &ObjectRepository{bucket: bucket, os: os}, nil
+func NewObjectRepository(os jetstream.ObjectStore) *ObjectRepository {
+	return &ObjectRepository{os: os}
 }
 
 func (r *ObjectRepository) SaveBundle(
@@ -50,7 +42,6 @@ func (r *ObjectRepository) SaveBundle(
 	}
 
 	return &funcdomain.SourceBundle{
-		Bucket:    r.bucket,
 		ObjectKey: key,
 		Size:      info.Size,
 		SHA256:    info.Digest,

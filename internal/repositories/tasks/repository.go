@@ -22,19 +22,8 @@ type Repository struct {
 	kv KeyValue
 }
 
-func NewRepository(ctx context.Context, js jetstream.JetStream, bucket string) (*Repository, error) {
-	if bucket == "" {
-		return nil, errors.New("bucket is empty")
-	}
-
-	kv, err := js.CreateOrUpdateKeyValue(ctx, jetstream.KeyValueConfig{
-		Bucket: bucket,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return &Repository{kv: kv}, nil
+func NewRepository(kv jetstream.KeyValue) *Repository {
+	return &Repository{kv: kv}
 }
 
 func (r *Repository) CancelTask(ctx context.Context, args *taskdomain.CancelTaskArgs) (*taskdomain.CancelTaskResult, error) {

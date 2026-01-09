@@ -11,9 +11,7 @@ services:
     restart: unless-stopped
     depends_on:
       unified-storage:
-        condition: service_started
-      unified-storage-health:
-        condition: service_completed_successfully
+        condition: service_healthy
 
   faas-agent:
     build:
@@ -25,33 +23,34 @@ services:
     restart: unless-stopped
     depends_on:
       unified-storage:
-        condition: service_started
-      unified-storage-health:
-        condition: service_completed_successfully
+        condition: service_healthy
 
   unified-storage:
-    image: nats:latest
+    build:
+      context: .
+      dockerfile: docker/unified-storage.dockerfile
     container_name: faas-unified-storage
     ports:
       - "4222:4222"
       - "8222:8222"
-    command: >
-      -js
-      -sd /data
-      -m 8222
+    command: ["-c", "/etc/nats/nats-server.conf", "-m", "8222"]
     volumes:
-      - unified-storage-data:/data
+      - ./scripts/unified-storage.entrypoint.sh:/usr/local/bin/unified-storage.entrypoint.sh:ro
+      - ./scripts/unified-storage.init.sh:/usr/local/bin/unified-storage.init.sh:ro
       - ./configs/unified-storage.example.conf:/etc/nats/nats-server.conf:ro
+      - ./configs/streams/tasks.json:/etc/nats/streams/tasks.json:ro
+    entrypoint: ["/bin/sh", "/usr/local/bin/unified-storage.entrypoint.sh"]
     restart: unless-stopped
-
-  unified-storage-health:
-    image: curlimages/curl:8.5.0
-    depends_on:
-      unified-storage:
-        condition: service_started
-    command: >
-      sh -c 'until curl -fsS "http://unified-storage:8222/healthz?js-enabled-only=true" >/dev/null; do sleep 1; done'
-    restart: "no"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "test -f /data/.health/init.ok && wget -q --spider 'http://127.0.0.1:8222/healthz?js-enabled-only=true'",
+        ]
+      interval: 5s
+      timeout: 2s
+      retries: 30
+      start_period: 10s
 
 volumes:
   unified-storage-data:
