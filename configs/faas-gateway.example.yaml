@@ -1,6 +1,8 @@
 server:
   grpc:
     address: 0.0.0.0:55055
+  metrics:
+    address: :2112
 
 unified_storage:
   url: nats://unified-storage:4222

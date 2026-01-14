@@ -6,6 +6,7 @@ services:
     container_name: faas-gateway
     ports:
       - "55055:55055"
+      - "2112:2112"
     volumes:
       - ./configs/faas-gateway.example.yaml:/etc/faas/config.yaml:ro
     restart: unless-stopped
@@ -52,8 +53,39 @@ services:
       retries: 30
       start_period: 10s
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: faas-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    restart: unless-stopped
+    networks:
+      - default
+
+  grafana:
+    image: grafana/grafana-enterprise:latest
+    container_name: faas-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=ChangeMeStrong123!
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./configs/grafana/provisioning:/etc/grafana/provisioning:ro
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    networks:
+      - default
+
 volumes:
   unified-storage-data:
+  prometheus-data:
+  grafana-storage:
 
 networks:
   default:

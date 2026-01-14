@@ -2,7 +2,9 @@ package gatewayapp
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net/http"
 
 	grpcsrv "github.com/10Narratives/faas/internal/app/components/grpc/server"
 	natscomp "github.com/10Narratives/faas/internal/app/components/nats"
@@ -14,31 +16,40 @@ import (
 	taskapi "github.com/10Narratives/faas/internal/transport/grpc/api/tasks"
 	healthapi "github.com/10Narratives/faas/internal/transport/grpc/dev/health"
 	reflectapi "github.com/10Narratives/faas/internal/transport/grpc/dev/reflect"
-
 	"github.com/10Narratives/faas/internal/transport/grpc/interceptors/logging"
 	"github.com/10Narratives/faas/internal/transport/grpc/interceptors/recovery"
 	"github.com/10Narratives/faas/internal/transport/grpc/interceptors/validator"
+	grpcprom "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 )
 
 type App struct {
-	cfg *Config
-	log *zap.Logger
-
+	cfg            *Config
+	log            *zap.Logger
 	unifiedStorage *natscomp.UnifiedStorage
-
-	taskRepo *taskrepo.Repository
-	taskPub  *taskrepo.Publisher
-
-	funcMeta *funcrepo.MetadataRepository
-	funcObj  *funcrepo.ObjectRepository
-
-	grpcServer *grpcsrv.Component
+	taskRepo       *taskrepo.Repository
+	taskPub        *taskrepo.Publisher
+	funcMeta       *funcrepo.MetadataRepository
+	funcObj        *funcrepo.ObjectRepository
+	grpcServer     *grpcsrv.Component
+	metricsServer  *http.Server
 }
 
 func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
+	srvMetrics := grpcprom.NewServerMetrics()
+	prometheus.MustRegister(srvMetrics)
+
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler())
+	metricsSrv := &http.Server{
+		Addr:    cfg.Server.Metrics.Address,
+		Handler: mux,
+	}
+
 	unifiedStorage, err := natscomp.NewUnifiedStorage(cfg.UnifiedStorage.URL)
 	if err != nil {
 		return nil, fmt.Errorf("cannot connect to unified storage: %w", err)
@@ -59,11 +70,13 @@ func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
 				recovery.NewUnaryServerInterceptor(),
 				logging.NewUnaryServerInterceptor(log),
 				validator.NewUnaryServerInterceptor(),
+				srvMetrics.UnaryServerInterceptor(),
 			),
 			grpc.ChainStreamInterceptor(
 				recovery.NewStreamServerInterceptor(),
 				logging.NewStreamServerInterceptor(log),
 				validator.NewStreamServerInterceptor(),
+				srvMetrics.StreamServerInterceptor(),
 			),
 		),
 		grpcsrv.WithServiceRegistration(
@@ -74,6 +87,8 @@ func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
 		),
 	)
 
+	srvMetrics.InitializeMetrics(grpcServer.Server)
+
 	return &App{
 		cfg:            cfg,
 		log:            log,
@@ -83,6 +98,7 @@ func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
 		taskPub:        taskPub,
 		funcMeta:       funcMetaRepo,
 		funcObj:        funcObjRepo,
+		metricsServer:  metricsSrv,
 	}, nil
 }
 
@@ -90,9 +106,16 @@ func (a *App) Startup(ctx context.Context) error {
 	errGroup, ctx := errgroup.WithContext(ctx)
 
 	errGroup.Go(func() error {
-		a.log.Debug("starting gRPC server")
-		defer a.log.Info("gRPC server ready to accept requests")
+		a.log.Debug("starting metrics http server")
+		err := a.metricsServer.ListenAndServe()
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return err
+		}
+		return nil
+	})
 
+	errGroup.Go(func() error {
+		a.log.Debug("starting gRPC server")
 		return a.grpcServer.Startup(ctx)
 	})
 
@@ -103,16 +126,16 @@ func (a *App) Shutdown(ctx context.Context) error {
 	errGroup, ctx := errgroup.WithContext(ctx)
 
 	errGroup.Go(func() error {
-		a.log.Debug("stopping gRPC server")
-		defer a.log.Info("gRPC server stopped")
+		a.log.Debug("stopping metrics http server")
+		return a.metricsServer.Shutdown(ctx)
+	})
 
+	errGroup.Go(func() error {
+		a.log.Debug("stopping gRPC server")
 		return a.grpcServer.Shutdown(ctx)
 	})
 
 	errGroup.Go(func() error {
-		a.log.Debug("closing connection to unified storage")
-		defer a.log.Info("connection to task unified storage")
-
 		a.unifiedStorage.Conn.Close()
 		return nil
 	})

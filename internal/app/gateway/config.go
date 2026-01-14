@@ -6,10 +6,15 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Grpc GrpcConfig `yaml:"grpc"`
+	Grpc    GrpcConfig    `yaml:"grpc"`
+	Metrics MetricsConfig `yaml:"metrics"`
 }
 
 type GrpcConfig struct {
+	Address string `yaml:"address"`
+}
+
+type MetricsConfig struct {
 	Address string `yaml:"address"`
 }
 

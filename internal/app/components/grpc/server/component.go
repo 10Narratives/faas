@@ -11,7 +11,7 @@ import (
 
 type Component struct {
 	address string
-	server  *grpc.Server
+	Server  *grpc.Server
 }
 
 func NewComponent(address string, opts ...ComponentOption) *Component {
@@ -27,7 +27,7 @@ func NewComponent(address string, opts ...ComponentOption) *Component {
 
 	return &Component{
 		address: address,
-		server:  server,
+		Server:  server,
 	}
 }
 
@@ -41,7 +41,7 @@ func (c *Component) Startup(ctx context.Context) error {
 	go func() {
 		defer close(channel)
 		select {
-		case channel <- c.server.Serve(lis):
+		case channel <- c.Server.Serve(lis):
 		case <-ctx.Done():
 		}
 	}()
@@ -57,7 +57,7 @@ func (c *Component) Startup(ctx context.Context) error {
 func (c *Component) Shutdown(ctx context.Context) error {
 	channel := make(chan struct{})
 	go func() {
-		c.server.GracefulStop()
+		c.Server.GracefulStop()
 		close(channel)
 	}()
 
@@ -65,7 +65,7 @@ func (c *Component) Shutdown(ctx context.Context) error {
 	case <-channel:
 		return nil
 	case <-ctx.Done():
-		c.server.Stop()
+		c.Server.Stop()
 		return errors.New("shutdown context exceeded")
 	}
 }
