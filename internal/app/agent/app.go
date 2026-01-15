@@ -21,15 +21,21 @@ type App struct {
 
 func NewApp(cfg *Config, log *zap.Logger) (*App, error) {
 	managerCfg := &runtime.ManagerConfig{
-		MaxInstances:     10,
-		InstanceLifetime: 5 * time.Minute,
-		ColdStart:        2 * time.Second,
+		MaxInstances:     100,
+		InstanceLifetime: 2 * time.Minute,
+		ColdStart:        200 * time.Millisecond,
 		NATSURL:          cfg.UnifiedStorage.URL,
-		PodName:          os.Getenv("POD_NAME"), // Docker ENV
-		MaxAckPending:    2,
-		AckWait:          10 * time.Minute,
+		PodName:          os.Getenv("POD_NAME"),
+		MaxAckPending:    25,
+		AckWait:          15 * time.Second,
 		MaxDeliver:       5,
-		Backoff:          []time.Duration{30 * time.Second, 1 * time.Minute, 2 * time.Minute},
+		Backoff: []time.Duration{
+			100 * time.Millisecond,
+			500 * time.Millisecond,
+			2 * time.Second,
+			5 * time.Second,
+			10 * time.Second,
+		},
 	}
 	manager, err := runtime.NewManager(log, managerCfg)
 	if err != nil {
